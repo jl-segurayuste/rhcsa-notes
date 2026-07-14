@@ -1,0 +1,36 @@
+# IPs Privadas
+
+### 1. Clase A (Rango privado)
+
+- **Rango de direcciones**: **10.0.0.0** a **10.255.255.255**
+- **Máscara de subred por defecto**: **255.0.0.0** (**/8** en notación CIDR)
+- **Primera IP asignable**: **10.0.0.1** (la dirección **10.0.0.0** es la dirección de red)
+- **Última IP asignable**: **10.255.255.254** (la dirección **10.255.255.255** es la dirección de broadcast)
+- **Cantidad de direcciones asignables**: Aproximadamente **16.7 millones** de direcciones.
+- **Uso típico**: Redes grandes (grandes corporaciones, centros de datos).
+
+### 2. Clase B (Rango privado)
+
+- **Rango de direcciones**: **172.16.0.0** a **172.31.255.255**
+- **Máscara de subred por defecto**: **255.240.0.0** (**/12** en notación CIDR)
+- **Primera IP asignable**: **172.16.0.1** (la dirección **172.16.0.0** es la dirección de red)
+- **Última IP asignable**: **172.31.255.254** (la dirección **172.31.255.255** es la dirección de broadcast)
+- **Cantidad de direcciones asignables**: Aproximadamente **1 millón** de direcciones.
+- **Uso típico**: Redes de tamaño mediano (universidades, empresas medianas).
+
+### 3. Clase C (Rango privado)
+
+- **Rango de direcciones**: **192.168.0.0** a **192.168.255.255**
+- **Máscara de subred por defecto**: **255.255.255.0** (**/24** en notación CIDR)
+- **Primera IP asignable**: **192.168.0.1** (la dirección **192.168.0.0** es la dirección de red)
+- **Última IP asignable**: **192.168.255.254** (la dirección **192.168.255.255** es la dirección de broadcast)
+- **Cantidad de direcciones asignables**: Aproximadamente **65,536** direcciones.
+- **Uso típico**: Redes pequeñas (hogares, pequeñas oficinas).
+
+### Resumen
+
+| Clase | Rango de IP | Máscara de subred | Primera IP asignable | Última IP asignable | Direcciones asignables |
+|---|---|---|---|---|---|
+| **A** | 10.0.0.0 – 10.255.255.255 | 255.0.0.0 (/8) | 10.0.0.1 | 10.255.255.254 | ~16.7 millones |
+| **B** | 172.16.0.0 – 172.31.255.255 | 255.240.0.0 (/12) | 172.16.0.1 | 172.31.255.254 | ~1 millón |
+| **C** | 192.168.0.0 – 192.168.255.255 | 255.255.255.0 (/24) | 192.168.0.1 | 192.168.255.254 | ~65,536 |
