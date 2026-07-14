@@ -2,6 +2,10 @@
 
 Apuntes de estudio y ejercicios de práctica para la certificación **Red Hat Certified System Administrator (RHCSA)**, organizados como libro de referencia en Markdown.
 
+## Versión: RHEL 8 y RHEL 9
+
+Este repositorio mezcla contenido de origen con intención: la teoría de `docs/` sigue mayormente el temario de RHCSA sobre RHEL 8, mientras que los exámenes de práctica en `examenes-practica/` se resolvieron sobre AlmaLinux 9 (un rebuild de RHEL 9). Los 10 dominios del examen son prácticamente idénticos entre ambas versiones, así que en la gran mayoría de los casos da igual — son los mismos comandos y conceptos. Donde hay diferencias reales conocidas (por ejemplo, `yum` frente a `dnf`, o el formato `ifcfg-*` frente al formato `keyfile` de NetworkManager para la configuración de red), los ficheros ya mencionan ambas variantes. Más detalle en [`docs/00-objetivos.md`](docs/00-objetivos.md).
+
 ## Estado
 
 ✅ Migración completa desde los apuntes personales de Notion (julio 2026). Contenido migrado:

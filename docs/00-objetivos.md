@@ -2,6 +2,8 @@
 
 Documento de objetivos oficiales del examen RHCSA 8 (Red Hat Certified System Administrator).
 
+> **Nota sobre versiones (RHEL 8 / RHEL 9):** este documento de objetivos procede originalmente de RHCSA 8, pero los 10 dominios que cubre (incluida la gestión de contenedores) se han mantenido prácticamente iguales en la versión actual del examen, basada en RHEL 9. El resto del repositorio mezcla ambas procedencias a propósito: la teoría de `docs/` sigue mayormente el temario de RHEL 8, mientras que los exámenes de práctica en [`examenes-practica/`](../examenes-practica/) se resolvieron sobre AlmaLinux 9 (un rebuild de RHEL 9). En la inmensa mayoría de los objetivos esto no supone ninguna diferencia práctica — son los mismos comandos y conceptos en ambas versiones. Donde sí puede haber diferencias reales entre RHEL 8 y RHEL 9 (por ejemplo, el formato de configuración de red heredado `ifcfg-*` frente al formato `keyfile` de NetworkManager, o `yum` frente a `dnf` como nombre de comando), los ficheros correspondientes ya mencionan ambas variantes explícitamente. Si tienes dudas sobre si un comando concreto sigue siendo válido en RHEL 9, verifícalo contra la documentación oficial antes del examen.
+
 ## 1. Conocimiento y uso de las herramientas principales
 
 1. **Acceso y comandos en el intérprete de comandos de shell**
