@@ -78,6 +78,14 @@ anonymous_enable=YES
 
 Editando el archivo de configuración `vsftpd.conf`, se habilita la opción `anonymous_enable` para permitir descargas anónimas. Esta configuración permite que los usuarios se conecten al servidor FTP sin autenticación, lo que es típico en servidores FTP públicos o donde se permite el acceso anónimo para compartir archivos públicos.
 
+### 8. Reiniciar vsftpd para aplicar la configuración
+
+```bash
+service vsftpd restart
+```
+
+El servicio ya se reinició en el paso 4, pero eso fue *antes* de editar `vsftpd.conf`. Cualquier cambio en el fichero de configuración no surte efecto hasta que el servicio se reinicia de nuevo, así que este paso es obligatorio para que `anonymous_enable=YES` se aplique.
+
 ## Funcionamiento
 
 Una vez completados estos pasos, el servidor vsftpd estará configurado para permitir descargas anónimas desde el directorio `/var/ftp/pub`. Los usuarios podrán acceder a este directorio sin necesidad de autenticación, utilizando un cliente FTP y especificando el servidor FTP con la dirección IP o nombre del sistema donde se realizó esta configuración.

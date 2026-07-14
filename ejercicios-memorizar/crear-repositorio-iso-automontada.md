@@ -27,10 +27,10 @@ Para configurar tu sistema para montar automáticamente la ISO del disco de inst
    Añade la siguiente línea al final del archivo:
 
    ```plain text
-   /dev/sr0 /repo iso9660 loop 0 0
+   /dev/sr0 /repo iso9660 defaults 0 0
    ```
 
-   Esto asegurará que la ISO se monte automáticamente en el directorio `/repo` cada vez que se reinicie el sistema.
+   Esto asegurará que la ISO se monte automáticamente en el directorio `/repo` cada vez que se reinicie el sistema. Nota: `/dev/sr0` es un dispositivo de bloques (la unidad óptica), no un fichero regular, así que no lleva la opción `loop` — esa opción solo es necesaria cuando el origen es un fichero `.iso` (ver la línea equivalente en el "Resumen de comandos" más abajo, que sí usa la ruta al fichero ISO con `loop`).
 
 4. **Montar la ISO manualmente por primera vez**: para montar la ISO inmediatamente sin tener que reiniciar el sistema, ejecuta:
 

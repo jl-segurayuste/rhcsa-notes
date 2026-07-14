@@ -172,3 +172,13 @@ Este ejercicio demuestra cómo agregar un nuevo almacenamiento a una máquina vi
 - **Persistencia**: configurar el montaje en `/etc/fstab` asegura que el volumen VDO esté disponible después de cada reinicio del sistema.
 
 Al completar este ejercicio, habrás aprendido a configurar y utilizar VDO, una poderosa herramienta de optimización de almacenamiento en Linux.
+
+> **Nota RHEL 8 vs RHEL 9:** este ejercicio usa el paquete `vdo` y el comando standalone `vdo create` (válidos en RHEL 8). En **RHEL 9** ese paquete y comando ya no existen — la gestión de VDO se integró en LVM. El equivalente en RHEL 9 es crear el volumen VDO con `lvcreate`, por ejemplo:
+>
+> ```bash
+> sudo vgcreate myvg /dev/sdb1
+> sudo lvcreate --type vdo -n myvdo -L 10G --virtualsize 20G myvg
+> sudo mkfs.xfs -K /dev/myvg/myvdo
+> ```
+>
+> El resto de pasos (punto de montaje, `/etc/fstab`, verificación) son iguales.
