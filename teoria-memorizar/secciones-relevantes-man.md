@@ -41,12 +41,6 @@ La **sección 8** contiene los **comandos de administración del sistema**, que 
 
   Esto mostrará la página del manual para el comando `fdisk`, que es utilizado para gestionar particiones de discos y es típico de un administrador del sistema.
 
-## Resumen de las secciones
-
-- **Sección 1**: Comandos de usuario ejecutables desde el terminal (como `ls`, `cp`, etc.).
-- **Sección 5**: Descripción de los formatos de archivos y convenciones (como `/etc/passwd`).
-- **Sección 8**: Comandos para administración del sistema (solo para superusuario, como `fdisk` o `systemctl`).
-
 ## Ejemplo práctico
 
 Supongamos que quieres ver las diferentes páginas del manual para el comando `passwd` en distintas secciones:
@@ -54,5 +48,3 @@ Supongamos que quieres ver las diferentes páginas del manual para el comando `p
 - **`man 1 passwd`**: Verá el comando `passwd` que cambia la contraseña del usuario.
 - **`man 5 passwd`**: Verá la descripción del archivo `/etc/passwd`, que almacena información sobre los usuarios.
 - **`man 8 passwd`**: Comando de administración relacionado con la gestión de contraseñas.
-
-Cada sección tiene su propósito, y puedes especificar una sección particular al usar `man` para obtener la información exacta que necesitas.

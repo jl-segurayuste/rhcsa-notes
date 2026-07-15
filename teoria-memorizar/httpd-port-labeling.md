@@ -67,12 +67,6 @@ El ejercicio pide realizar lo siguiente:
    sudo systemctl restart httpd
    ```
 
-## Resumen del proceso
-
-- **Cambiar el puerto en Apache**: modificar el archivo de configuración de Apache para que escuche en un puerto no estándar.
-- **Configurar SELinux para permitir el nuevo puerto**: usar `semanage` para etiquetar el puerto con el tipo de contexto adecuado (`http_port_t`).
-- **Verificar y reiniciar Apache**: verificar que el puerto ha sido etiquetado correctamente y reiniciar Apache.
-
 ## Objetivo del ejercicio
 
-Este ejercicio tiene como objetivo enseñar a trabajar con SELinux para modificar configuraciones de seguridad de servicios y puertos. Es una habilidad esencial cuando se manejan servidores en entornos seguros, como es el caso de servidores web (httpd).
+Enseñar a trabajar con SELinux para modificar configuraciones de seguridad de servicios y puertos.

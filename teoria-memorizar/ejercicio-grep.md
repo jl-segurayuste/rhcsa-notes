@@ -1,6 +1,6 @@
 # Ejercicio con grep
 
-Para realizar la operación descrita, se puede usar el comando `grep` con las opciones adecuadas. Este es el comando completo:
+Comando completo:
 
 ```bash
 grep -i '^essential' /usr/share/dict/linux.words | grep -v '^$' > /tmp/pattern.txt

@@ -1,6 +1,6 @@
 # Configuración de repositorios con URL
 
-Sí, se puede configurar un cliente YUM/DNF utilizando el comando `dnf config-manager` para añadir los repositorios de manera sencilla. A continuación se detallan los pasos para configurarlo.
+Configura un cliente YUM/DNF con el comando `dnf config-manager` para añadir repositorios.
 
 ## Configuración paso a paso
 
@@ -68,5 +68,3 @@ Sí, se puede configurar un cliente YUM/DNF utilizando el comando `dnf config-ma
    ```bash
    sudo dnf makecache
    ```
-
-Con esto, el sistema está configurado para usar los repositorios especificados.

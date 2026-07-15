@@ -1,6 +1,6 @@
 # Common firewall-cmd Options
 
-Aquí tienes la tabla con las opciones de `firewall-cmd` que debes aprender según tu libro:
+Opciones de `firewall-cmd` más comunes:
 
 | firewall-cmd option | Explicación |
 |---|---|
@@ -21,5 +21,3 @@ Aquí tienes la tabla con las opciones de `firewall-cmd` que debes aprender seg�
 | `--permanent` | Realiza cambios permanentes que persisten tras reinicios. |
 | `--runtime-to-permanent` | Guarda los cambios de configuración temporal en la configuración permanente. |
 | `--reload` | Recarga el firewall para aplicar cambios realizados con `--permanent`. |
-
-Estos comandos son fundamentales para configurar y administrar el firewall en entornos de sistema de forma efectiva y controlada.
