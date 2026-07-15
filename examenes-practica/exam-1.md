@@ -54,7 +54,7 @@ echo "user30" >> /etc/at.deny
 Use tar and bzip2 to create a compressed archive of the `/etc/sysconfig` directory. Store the archive under `/tmp` as etc.tar.bz2:
 
 ```bash
-tar -jcvf /tmp/etc/.tar.bz2 /etc/sysconfig/
+tar -jcvf /tmp/etc.tar.bz2 /etc/sysconfig/
 ```
 
 ## Mensaje personalizado al archivo /var/log/messages

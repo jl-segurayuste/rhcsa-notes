@@ -307,7 +307,7 @@ Crear un VG de 2GB con el nombre `myvg`, usando 8 MiB de physical extents. Dentr
 1. Se accede a la herramienta `fdisk` y se genera una partición de 2GB:
 
    ```bash
-   fdisk /sdb
+   fdisk /dev/sdb
    # Dentro del menú se ejecutan los siguientes comandos
    # Crear una nueva tabla de particiones
    g
@@ -823,7 +823,7 @@ Después de cambiar la contraseña o cancelar (Ctrl+C), la sesión termina autom
        echo -n "Restricted shell> "
        read -r cmd
        if [ "$cmd" == "passwd" ]; then
-           exec /usr/bin/passwd
+           /usr/bin/passwd
        else
            echo "Access denied. You are only allowed to change your password."
        fi
@@ -935,14 +935,14 @@ Por ejemplo: si el usuario escribe `passwd`, el valor de `cmd` será exactamente
 
 ```bash
 if [ "$cmd" == "passwd" ]; then
-    exec /usr/bin/passwd
+    /usr/bin/passwd
 else
     echo "Access denied. You are only allowed to change your password."
 fi
 ```
 
-- Bloque `if [ "$cmd" == "passwd" ]`: Este condicional verifica si el valor ingresado por el usuario (`$cmd`) es exactamente `passwd`. Si es cierto, ejecuta el comando `passwd` reemplazando el proceso actual usando `exec`.
-- **¿Qué hace `exec`?** `exec /usr/bin/passwd` reemplaza el proceso del script con el comando `passwd`. Una vez que el comando `passwd` termina, el usuario es devuelto automáticamente al entorno de shell restringido (gracias al bucle infinito).
+- Bloque `if [ "$cmd" == "passwd" ]`: Este condicional verifica si el valor ingresado por el usuario (`$cmd`) es exactamente `passwd`. Si es cierto, ejecuta el comando `passwd` como un subproceso normal (sin `exec`).
+- **Importante: aquí NO se debe usar `exec`.** `exec` reemplaza el proceso actual (el propio script) por el comando indicado, por lo que si se usara `exec /usr/bin/passwd`, en cuanto `passwd` terminara se acabaría también el proceso del script — la sesión se cerraría en vez de volver al `while true` y mostrar de nuevo `Restricted shell>`. Al llamar a `passwd` sin `exec`, el script continúa ejecutándose después de que `passwd` termine y el bucle vuelve a mostrar el prompt, que es el comportamiento que se describe a continuación.
 - Bloque `else`: Si el usuario ingresa cualquier cosa que no sea `passwd`, el script muestra `Access denied. You are only allowed to change your password.`. Esto asegura que ningún otro comando sea ejecutado.
 
 **7. Cierre del bucle**
@@ -1271,7 +1271,6 @@ Esto ya se realizó completamente en el ejercicio anterior.
 
 - `loginctl enable-linger container-user` → Permite servicios sin login.
 - `systemctl --user enable container-http-container.service` → Habilitado para autoarranque.
-- Opción `x-systemd.requires=stratisd.service` → Dependencias correctas.
 
 **Funcionamiento como servicio del sistema:**
 
