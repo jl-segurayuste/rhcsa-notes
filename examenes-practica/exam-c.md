@@ -34,17 +34,17 @@ Esta línea permite que el sistema monte el CD o DVD automáticamente en `/repo`
 5. Se lanzan los siguientes comandos para añadir estos directorios al repositorio de software:
 
 ```bash
-dnf config-manager --add-repo=file://repo/BaseOS
+dnf config-manager --add-repo=file:///repo/BaseOS
 ```
 
 ```bash
-dnf config-manager --add-repo=file://repo/AppStream
+dnf config-manager --add-repo=file:///repo/AppStream
 ```
 
 Explicación de cada comando:
 
-1. **`dnf config-manager --add-repo=file://repo/BaseOS`**: Este comando añade un repositorio llamado `BaseOS` usando la ruta `file://repo/BaseOS` como fuente. Aquí, `BaseOS` contiene los paquetes básicos del sistema operativo, incluyendo el núcleo y herramientas esenciales. Al ejecutarlo, el sistema agrega esta ruta local como un repositorio, permitiendo que `dnf` busque paquetes y actualizaciones en `BaseOS`.
-2. **`dnf config-manager --add-repo=file://repo/AppStream`**: Este comando añade otro repositorio, `AppStream`, usando la ruta `file://repo/AppStream` como origen. `AppStream` contiene aplicaciones y paquetes adicionales que se pueden instalar y actualizar, dándole al usuario acceso a una variedad de software opcional. Al añadirlo de esta forma, `dnf` también buscará en este repositorio para la instalación de aplicaciones adicionales.
+1. **`dnf config-manager --add-repo=file:///repo/BaseOS`**: Este comando añade un repositorio llamado `BaseOS` usando la ruta `file:///repo/BaseOS` como fuente. Aquí, `BaseOS` contiene los paquetes básicos del sistema operativo, incluyendo el núcleo y herramientas esenciales. Al ejecutarlo, el sistema agrega esta ruta local como un repositorio, permitiendo que `dnf` busque paquetes y actualizaciones en `BaseOS`.
+2. **`dnf config-manager --add-repo=file:///repo/AppStream`**: Este comando añade otro repositorio, `AppStream`, usando la ruta `file:///repo/AppStream` como origen. `AppStream` contiene aplicaciones y paquetes adicionales que se pueden instalar y actualizar, dándole al usuario acceso a una variedad de software opcional. Al añadirlo de esta forma, `dnf` también buscará en este repositorio para la instalación de aplicaciones adicionales.
 
 ### Notas
 
@@ -1043,7 +1043,7 @@ podman generate systemd --name mariadb-student --files
 2. **Habilitar el servicio del usuario:** habilita y arranca el servicio como usuario:
 
 ```bash
-systemctl --user enable --now container-mariadb-container.service
+systemctl --user enable --now container-mariadb-student.service
 ```
 
    Esto asegura que el contenedor se inicie automáticamente cada vez que el usuario inicia sesión.
