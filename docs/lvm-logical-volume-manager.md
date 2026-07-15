@@ -67,7 +67,7 @@ lvremove /dev/nombre_del_grupo/nombre_del_lv   # Eliminar LV
 vgremove nombre_del_grupo   # Eliminar VG
 ```
 
-Recuerda que estos son solo conceptos y comandos básicos. La gestión de LVM puede volverse más compleja a medida que se exploran funciones avanzadas como instantáneas (snapshots), migración de datos, etc. Se recomienda consultar la documentación oficial de LVM y experimentar en un entorno de prueba para obtener más familiaridad.
+La gestión de LVM puede volverse más compleja a medida que se exploran funciones avanzadas como instantáneas (snapshots) o migración de datos.
 
 **Listado de volúmenes lógicos:**
 
@@ -175,7 +175,7 @@ Secuencia de pasos generales:
    sudo resize2fs /dev/nombre_del_vg/nombre_del_lv
    ```
 
-Estos pasos te permitirán aumentar el espacio de tus volúmenes lógicos en caliente sin tener que apagar el servidor ni interrumpir los servicios. Ten en cuenta que, si bien estos pasos son generalmente seguros, siempre es una buena práctica realizar copias de seguridad antes de realizar cambios significativos en la configuración de almacenamiento.
+Aunque estos pasos son generalmente seguros, realiza copias de seguridad antes de cambios significativos en la configuración de almacenamiento.
 
 ### Reconsiderando: un solo VG vs. VG separados por partición
 

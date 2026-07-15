@@ -56,7 +56,4 @@ sudo setenforce 0
 
 - La mayoría de las acciones permitidas o denegadas por SELinux se registran en los registros de auditoría.
 - La herramienta `seinfo` puede proporcionar información útil sobre contextos de seguridad y políticas.
-- La comprensión de los mensajes de los registros y las herramientas de diagnóstico es esencial para abordar correctamente los incumplimientos de SELinux.
-- Evita desactivar SELinux permanentemente a menos que sea absolutamente necesario para garantizar la seguridad.
-
-Recuerda que SELinux está diseñado para mejorar la seguridad del sistema, y comprender y abordar adecuadamente los incumplimientos de políticas es esencial para mantener la integridad del sistema.
+- Evita desactivar SELinux permanentemente a menos que sea absolutamente necesario.

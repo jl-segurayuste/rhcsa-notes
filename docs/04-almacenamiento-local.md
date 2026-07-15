@@ -2,7 +2,7 @@
 
 ## Enumere, cree y elimine particiones en discos MBR y GPT
 
-La administración de particiones en discos MBR (Master Boot Record) y GPT (GUID Partition Table) se realiza principalmente a través de herramientas como `fdisk` para MBR y `gdisk` o `parted` para GPT. Aquí tienes ejemplos para ambas situaciones:
+La administración de particiones en discos MBR (Master Boot Record) y GPT (GUID Partition Table) se realiza principalmente con `fdisk` para MBR y `gdisk` o `parted` para GPT.
 
 ### Unidades de tamaño
 
@@ -31,39 +31,35 @@ La administración de particiones en discos MBR (Master Boot Record) y GPT (GUID
 
 #### 1. Listar Particiones
 
-Para listar las particiones en un disco MBR, puedes usar el comando `fdisk`:
+Lista las particiones en un disco MBR con `fdisk`:
 
 ```shell
 sudo fdisk -l /dev/sdX
 ```
 
-Reemplaza `/dev/sdX` con el nombre del disco que estás administrando, como `/dev/sda`.
+Reemplaza `/dev/sdX` con el nombre del disco, como `/dev/sda`.
 
 #### 2. Crear una Nueva Partición
 
-Para crear una nueva partición en un disco MBR:
-
 ```shell
 sudo fdisk /dev/sdX
 ```
 
-Luego, sigue las instrucciones para crear una nueva partición.
+Sigue las instrucciones interactivas para crear la nueva partición.
 
 #### 3. Eliminar una Partición
 
-Para eliminar una partición en un disco MBR:
-
 ```shell
 sudo fdisk /dev/sdX
 ```
 
-Luego, sigue las instrucciones para eliminar una partición.
+Sigue las instrucciones interactivas para eliminar la partición.
 
 ### GPT (GUID Partition Table)
 
 #### 1. Listar Particiones
 
-Para listar las particiones en un disco GPT, puedes usar `gdisk` o `parted`:
+Lista las particiones en un disco GPT con `gdisk` o `parted`:
 
 ```shell
 sudo gdisk -l /dev/sdX
@@ -75,17 +71,17 @@ o
 sudo parted /dev/sdX print
 ```
 
-Reemplaza `/dev/sdX` con el nombre del disco que estás administrando, como `/dev/sda`.
+Reemplaza `/dev/sdX` con el nombre del disco, como `/dev/sda`.
 
 #### 2. Crear una Nueva Partición
 
-Para crear una nueva partición en un disco GPT con `gdisk`:
+Con `gdisk`:
 
 ```shell
 sudo gdisk /dev/sdX
 ```
 
-Luego, sigue las instrucciones para crear una nueva partición.
+Sigue las instrucciones interactivas para crear la nueva partición.
 
 O con `parted`:
 
@@ -98,13 +94,11 @@ Reemplaza `<tipo_fs>`, `<inicio>` y `<fin>` según tus necesidades.
 
 #### 3. Eliminar una Partición
 
-Para eliminar una partición en un disco GPT:
-
 ```shell
 sudo gdisk /dev/sdX
 ```
 
-Luego, sigue las instrucciones para eliminar una partición.
+Sigue las instrucciones interactivas para eliminar la partición.
 
 O con `parted`:
 
@@ -119,7 +113,7 @@ Reemplaza `<número_partición>` con el número de la partición que deseas elim
 
 ### Ejercicio: crear una partición con `parted` paso a paso
 
-El ejercicio que describiste es un procedimiento paso a paso para crear una partición en un nuevo disco utilizando la herramienta `parted`. Aquí tienes una explicación detallada de cada paso:
+Procedimiento paso a paso para crear una partición en un disco nuevo con `parted`:
 
 #### Paso 1: Abrir la Shell Interactiva de `parted`
 
@@ -187,8 +181,6 @@ quit
 
 Este comando sale de la shell interactiva de `parted` y aplica los cambios realizados.
 
-**Resumen:** Este ejercicio te guía a través de la creación de una partición en un disco nuevo utilizando `parted`. Los pasos incluyen abrir la herramienta, configurar el esquema de particionamiento (GPT), crear una partición específica y verificar los cambios. `parted` es una herramienta potente y flexible para gestionar particiones, y estos pasos básicos te ayudan a familiarizarte con su uso.
-
 ### Creación del sistema de fichero
 
 | File System | Descripción |
@@ -207,7 +199,7 @@ Este comando sale de la shell interactiva de `parted` y aplica los cambios reali
 
 > Ver también el fichero ampliado sobre este tema: [LVM (Logical Volume Manager)](lvm-logical-volume-manager.md).
 
-La gestión de volúmenes físicos se realiza comúnmente con el administrador de volúmenes lógicos `LVM` (Logical Volume Manager) en sistemas Linux. Aquí te doy ejemplos para crear y eliminar volúmenes físicos con `LVM`:
+La gestión de volúmenes físicos se realiza comúnmente con el administrador de volúmenes lógicos `LVM` (Logical Volume Manager).
 
 | Command | Explanation |
 |---|---|
@@ -346,13 +338,11 @@ La diferencia entre los comandos `lvresize` radica en cómo especifican el tama�
   - **75%FREE:** redimensiona el volumen lógico para que su tamaño total sea el 75% del espacio libre en el grupo de volúmenes.
   - **+75%FREE:** añade el 75% del espacio libre al volumen lógico actual.
 
-En resumen, los comandos sin el signo `+` establecen un nuevo tamaño total basado en un porcentaje del grupo de volúmenes o del espacio libre, mientras que los comandos con el signo `+` aumentan el tamaño actual del volumen lógico en un porcentaje del grupo de volúmenes o del espacio libre.
-
 ## Configure los sistemas para montar los sistemas de archivos durante el arranque con un ID único universal (UUID) o una etiqueta
 
-Para configurar los sistemas para montar sistemas de archivos durante el arranque utilizando el Identificador Único Universal (UUID) o una etiqueta, debes realizar algunas configuraciones en el archivo `/etc/fstab` (File System Table). Aquí tienes los pasos para hacerlo:
+Configurar el montaje durante el arranque con UUID o etiqueta se hace en el archivo `/etc/fstab` (File System Table), que define cómo se montan los sistemas de archivos al iniciar el sistema.
 
-El archivo `/etc/fstab` en sistemas Linux es utilizado para definir cómo se deben montar los sistemas de archivos al iniciar el sistema. Aquí tienes una tabla con los campos y descripciones de `/etc/fstab`:
+Campos de `/etc/fstab`:
 
 | Campo | Descripción |
 |---|---|
@@ -394,8 +384,6 @@ UUID=zzzz-zzzz  swap           swap           defaults             0            
    - `0` (no verificar)
    - `1` (verificar, usualmente para el sistema de archivos raíz)
    - `2` (verificar, para otros sistemas de archivos)
-
-Este archivo es fundamental para la administración de los sistemas de archivos en un entorno Linux y debe ser configurado correctamente para asegurar que todos los volúmenes necesarios sean montados correctamente al iniciar el sistema.
 
 ### Opciones de montaje comunes
 
@@ -491,11 +479,11 @@ sudo nano /etc/fstab
 LABEL=mi_etiqueta   /mnt/mi_sistema_de_archivos   ext4   defaults   0   2
 ```
 
-Recuerda sustituir los valores de ejemplo (`/dev/sdXn`, `123e4567-89ab-cdef-0123-456789abcdef`, `mi_etiqueta`, `/mnt/mi_sistema_de_archivos`, etc.) con los valores específicos de tu configuración. Además, ten cuidado al editar el archivo `/etc/fstab` ya que errores en esta configuración pueden afectar el arranque del sistema.
+Ten cuidado al editar `/etc/fstab`: un error en esta configuración puede afectar el arranque del sistema.
 
 ## Agregue particiones y volúmenes lógicos nuevos, y cambie a un sistema de forma no destructiva
 
-Para agregar particiones y volúmenes lógicos nuevos de manera no destructiva utilizando LVM, puedes seguir los siguientes pasos. Asegúrate de realizar copias de seguridad antes de realizar cualquier cambio en la configuración del almacenamiento para evitar la pérdida de datos accidental.
+Realiza copias de seguridad antes de cualquier cambio en la configuración del almacenamiento para evitar la pérdida de datos accidental.
 
 ### Agregar particiones y volúmenes lógicos nuevos
 
@@ -565,11 +553,9 @@ Para agregar particiones y volúmenes lógicos nuevos de manera no destructiva u
 
    Luego, puedes cambiar la entrada en `/etc/fstab` para que apunte al nuevo sistema de archivos.
 
-Con estos pasos, has agregado particiones y volúmenes lógicos nuevos y cambiado a un sistema de forma no destructiva. Asegúrate de adaptar los comandos a tu configuración específica y ten cuidado al realizar cambios en la configuración del almacenamiento.
-
 ## Revisar el sistema de fichero usado
 
-Para determinar qué sistema de archivos se está utilizando en una partición específica, puedes utilizar varios comandos en Linux. Aquí hay algunos métodos comunes:
+Determina qué sistema de archivos se está utilizando en una partición con estos comandos:
 
 ### Usar el comando `lsblk`
 
@@ -652,5 +638,3 @@ file -s /dev/mapper/vgdata3-lvdata3
    ```
    /dev/mapper/vgdata3-lvdata3: XFS filesystem data (blksz 4096, inosz 512, v2 dirs)
    ```
-
-Estos comandos te ayudarán a identificar el tipo de sistema de archivos que se está utilizando en tus particiones.

@@ -2,7 +2,7 @@
 
 ## Cree, borre y modifique cuentas de usuario locales
 
-Para gestionar usuarios locales en sistemas basados en Red Hat (como RHEL, CentOS y Fedora), puedes utilizar comandos como `useradd`, `userdel` y `usermod`. Aquí te proporciono algunos pasos básicos:
+Gestiona usuarios locales en sistemas basados en Red Hat con `useradd`, `userdel` y `usermod`.
 
 ### 1. Crear un Usuario Local
 
@@ -70,15 +70,9 @@ Puedes verificar la configuración general del sistema de usuarios en el archivo
 cat /etc/login.defs
 ```
 
-### Notas Adicionales
-
-- Asegúrate de tener privilegios de superusuario (`sudo`) para ejecutar estos comandos.
-- Los comandos pueden variar ligeramente según la distribución específica y la versión de Red Hat que estás utilizando.
-- Puedes consultar la documentación y manuales de usuario (`man`) para obtener información detallada sobre estos comandos. Por ejemplo, `man useradd`, `man userdel`, etc.
-
 ## Cambie contraseñas y ajuste su duración para las cuentas de usuario locales
 
-Para cambiar contraseñas y ajustar la duración de las contraseñas para cuentas de usuario locales en sistemas basados en Red Hat, puedes utilizar el comando `passwd` y configurar las políticas de contraseñas con el comando `chage`. Aquí te proporciono algunos pasos básicos:
+Cambia contraseñas con `passwd` y configura las políticas de expiración con `chage`.
 
 ### 1. Cambiar la Contraseña de un Usuario
 
@@ -120,13 +114,11 @@ Esto mostrará información detallada sobre la configuración de contraseñas pa
 
 ### Notas Adicionales
 
-- Asegúrate de tener privilegios de superusuario (`sudo`) para ejecutar estos comandos.
-- Los comandos y opciones pueden variar según la versión específica y la configuración de tu sistema.
-- Ten en cuenta que la configuración de duración de contraseñas puede depender del sistema de autenticación que estés utilizando (por ejemplo, `pam_unix`, `pam_pwquality`, etc.).
+- La configuración de duración de contraseñas puede depender del sistema de autenticación en uso (por ejemplo, `pam_unix`, `pam_pwquality`).
 
 ## Cree, borre y modifique los grupos locales y la pertenencia a grupos
 
-Para gestionar grupos locales y la pertenencia a grupos en sistemas basados en Red Hat, puedes utilizar comandos como `groupadd`, `groupdel`, `usermod` y `gpasswd`. Aquí te proporciono algunos pasos básicos:
+Gestiona grupos locales y la pertenencia a grupos con `groupadd`, `groupdel`, `usermod` y `gpasswd`.
 
 ### 1. Crear un Grupo Local
 
@@ -184,16 +176,9 @@ sudo gpasswd -a nombre_usuario nombre_grupo
 
 Esto agregará al usuario `nombre_usuario` al grupo `nombre_grupo`. Asegúrate de utilizar la opción `-a` para agregar al usuario al grupo sin eliminarlo de otros grupos a los que pueda pertenecer.
 
-### Notas Adicionales
-
-- Asegúrate de tener privilegios de superusuario (`sudo`) para ejecutar estos comandos.
-- Los comandos y opciones pueden variar según la versión específica y la configuración de tu sistema.
-
-Estos son comandos básicos para gestionar grupos locales y la pertenencia a grupos en sistemas basados en Red Hat. Ajusta según tus necesidades y preferencias.
-
 ## Configure el acceso de superusuario
 
-En sistemas basados en Red Hat, el acceso de superusuario se gestiona a través de la cuenta de usuario "root". Aquí te proporciono algunos pasos y conceptos clave para configurar el acceso de superusuario:
+En sistemas basados en Red Hat, el acceso de superusuario se gestiona a través de la cuenta de usuario "root".
 
 ### 1. Acceder como Superusuario
 
@@ -266,9 +251,5 @@ Es importante auditar y registrar las actividades del superusuario. Puedes revis
 
 ### Notas Adicionales
 
-- Configurar el acceso de superusuario de manera segura es esencial para la seguridad del sistema.
 - Evita el uso excesivo de la cuenta "root" y favorece el uso de sudo para reducir riesgos.
-- Estas configuraciones pueden variar según la versión específica y la configuración de tu sistema.
 - Ten cuidado al editar archivos de configuración críticos y realiza copias de seguridad antes de hacer cambios significativos.
-
-Recuerda seguir las mejores prácticas de seguridad y documentar cualquier cambio en la configuración del sistema. Estos pasos proporcionan una guía general y deberían ser adaptados según los requisitos específicos y las políticas de seguridad de tu entorno.

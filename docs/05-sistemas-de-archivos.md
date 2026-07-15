@@ -2,7 +2,7 @@
 
 ## Cree, monte, desmonte y utilice los sistemas de archivos vfat, ext4 y xfs
 
-La creación y configuración de sistemas de archivos en Linux implica el uso de comandos específicos según el tipo de sistema de archivos que desees utilizar. A continuación, ejemplos para crear, montar y desmontar sistemas de archivos con VFAT (FAT32), ext4 y XFS.
+Crea, monta y desmonta sistemas de archivos VFAT (FAT32), ext4 y XFS con los comandos siguientes.
 
 ### VFAT (FAT32)
 
@@ -64,11 +64,9 @@ sudo mount /dev/sdXn /ruta/de/montaje
 sudo umount /ruta/de/montaje
 ```
 
-Estos comandos te permitirán crear, montar y desmontar sistemas de archivos con los formatos VFAT, ext4 y XFS en Linux. Asegúrate de reemplazar las rutas de las particiones y las rutas de montaje según tu configuración específica.
-
 ## Monte y desmonte los sistemas de archivos de red utilizando NFS
 
-Para montar y desmontar sistemas de archivos de red utilizando NFS (Network File System) en Linux, puedes seguir estos pasos. Ten en cuenta que tanto el servidor NFS como el cliente deben estar configurados correctamente para que esto funcione.
+Tanto el servidor NFS como el cliente deben estar configurados correctamente para que el montaje funcione.
 
 ### Montar un sistema de archivos NFS
 
@@ -102,15 +100,13 @@ sudo mount -t nfs 192.168.1.1:/compartido /mnt/nfs_share
 sudo umount /mnt/nfs_share
 ```
 
-Asegúrate de que el servidor NFS esté configurado correctamente y tenga las exportaciones adecuadas definidas en su archivo `/etc/exports`. Además, asegúrate de que el cliente NFS tenga los permisos necesarios para acceder al sistema de archivos remoto.
+El servidor NFS debe tener las exportaciones definidas en `/etc/exports`.
 
-Ten en cuenta que estos comandos son para montar y desmontar sistemas de archivos NFS de forma manual. Si deseas que se monten automáticamente al inicio, deberías agregar las entradas correspondientes en el archivo `/etc/fstab`.
+Estos comandos montan y desmontan de forma manual. Para que se monten automáticamente al inicio, agrega la entrada correspondiente en `/etc/fstab`:
 
 ```
 servidor:/ruta/compartida  /ruta/de/montaje  nfs   defaults  0 0
 ```
-
-Ajusta las rutas y direcciones IP según tu configuración específica.
 
 ## Configure autofs
 
@@ -128,9 +124,9 @@ Autofs es una herramienta en sistemas Linux que permite montar sistemas de archi
 2. **Configuración directa:** es más directo y sencillo de configurar. Puedes definir todos los puntos de montaje en un solo lugar (`/etc/fstab`) y asegurarte de que estén disponibles desde el inicio.
 3. **Recursos locales:** es adecuado para sistemas de archivos locales o dispositivos que siempre están disponibles al inicio.
 
-En resumen, la elección entre autofs y `/etc/fstab` depende de tus requisitos específicos. Si la estabilidad en el arranque y la simplicidad son prioritarias, `/etc/fstab` puede ser la mejor opción. Si estás gestionando recursos de red y prefieres el montaje bajo demanda, autofs ofrece mayor flexibilidad. Algunos entornos pueden incluso utilizar ambos métodos según la necesidad del escenario.
+La elección depende del caso: `/etc/fstab` para estabilidad y simplicidad en el arranque, autofs para montaje bajo demanda de recursos de red. Algunos entornos combinan ambos métodos.
 
-A continuación, una guía básica para configurar autofs en un sistema Linux:
+Guía básica para configurar autofs:
 
 ### Paso 1: Instalar Autofs
 
@@ -188,11 +184,11 @@ sudo systemctl restart autofs
 
 Ahora, cuando accedas a `/mnt/auto/my_nfs_share` en tu sistema, autofs automáticamente montará el recurso NFS desde el servidor en el directorio especificado.
 
-Este es solo un ejemplo básico. Puedes configurar autofs para montar diversos tipos de recursos, como sistemas de archivos NFS, CIFS, entre otros. Ajusta la configuración según tus necesidades específicas.
+Autofs también puede montar otros tipos de recursos, como CIFS.
 
 ## Amplíe los volúmenes lógicos actuales
 
-Para ampliar volúmenes lógicos en LVM (Logical Volume Manager), puedes seguir los pasos a continuación. Asegúrate de hacer copias de seguridad importantes antes de realizar operaciones que puedan afectar el almacenamiento.
+Haz copias de seguridad antes de realizar operaciones que puedan afectar el almacenamiento.
 
 ### Paso 1: Verificar el Espacio Disponible
 
@@ -238,8 +234,6 @@ sudo xfs_growfs /mnt/punto_de_montaje  # Ajusta el punto de montaje según tu co
 
 ### Notas adicionales
 
-- Asegúrate de ajustar los nombres de grupo y volumen según tu configuración real.
-- El tamaño puede ajustarse según tus necesidades (`+10G` es solo un ejemplo).
 - Si utilizas LVM Thin Provisioning, hay comandos específicos para ese caso.
 
 ## Cree y configure directorios con GID definido para la colaboración
@@ -274,8 +268,6 @@ Para asegurar que los futuros archivos y directorios creados dentro de este dire
 sudo chmod g+s /ruta/del/directorio
 ```
 
-`g+s`: establece el bit "setgid" en el directorio. El bit "setgid" en un directorio significa que los nuevos archivos creados en ese directorio heredarán el grupo del directorio, en lugar del grupo primario del usuario que crea el archivo. Esto es útil en entornos donde varios usuarios necesitan trabajar en un conjunto común de archivos y se quiere garantizar que los archivos compartan un grupo común.
-
 > **Nota:** la opción `g+s` establece el bit "setgid" en el directorio, lo que significa que los archivos creados en ese directorio heredarán el grupo del directorio en lugar del grupo primario del usuario que los creó. Esto se aplica a los subdirectorios también.
 >
 > En cambio, si usas `chmod 2775`, estás estableciendo permisos específicos, incluido el bit "setgid", pero esto no garantiza que los subdirectorios hereden automáticamente el grupo del directorio principal. Puedes tener que configurar permisos adicionales en subdirectorios según tus necesidades.
@@ -296,11 +288,7 @@ drwxrwsr-x 2 usuario colaboradores 4096 Jan 20 12:34 /ruta/del/directorio
 
 El "s" al final de los permisos indica que el GID está configurado.
 
-Con estos pasos, has creado un directorio con un GID definido para la colaboración. Los archivos creados en este directorio heredarán automáticamente el GID, permitiendo una colaboración más efectiva entre los miembros del grupo.
-
 ## Diagnostique y corrija problemas de permisos de archivos
-
-Diagnosticar y corregir problemas de permisos de archivos puede ser una tarea crucial para asegurar la integridad y la seguridad de un sistema. Aquí hay algunas pautas generales y pasos que puedes seguir para diagnosticar y corregir problemas de permisos:
 
 ### Diagnóstico de Problemas de Permisos
 
@@ -360,11 +348,3 @@ Diagnosticar y corregir problemas de permisos de archivos puede ser una tarea cr
 
    Esto cambiará la máscara umask temporalmente. Para hacerlo permanente, puedes modificar la configuración en el archivo `.bashrc` o `.bash_profile` del usuario.
 
-### Recomendaciones Finales
-
-- **Realizar diagnóstico recurrente:** es buena práctica realizar diagnósticos periódicos de los permisos para identificar y abordar cualquier problema de manera proactiva.
-- **Documentar cambios:** documenta cualquier cambio que realices en la configuración de permisos para futuras referencias.
-- **Pruebas después de cambios:** después de realizar cambios, realiza pruebas para asegurarte de que los permisos se hayan configurado correctamente y que no afecten el funcionamiento normal del sistema.
-- **Copia de seguridad:** antes de realizar cambios significativos, realiza copias de seguridad para evitar la pérdida accidental de datos.
-
-Estas son pautas generales, y la aplicación exacta puede variar según el entorno y el sistema operativo específicos. Asegúrate de comprender el impacto de cualquier cambio que realices en los permisos.

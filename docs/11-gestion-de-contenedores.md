@@ -2,7 +2,7 @@
 
 ## Halle imágenes en contenedores y extráigalas desde un registro remoto
 
-Para gestionar imágenes de contenedores y extraerlas desde un registro remoto, se utilizan comandos de herramientas como Podman y Skopeo. A continuación se detallan los pasos para realizar estas operaciones.
+Gestiona y extrae imágenes de contenedores desde un registro remoto con Podman y Skopeo.
 
 ### 1. Buscar Imágenes en un Registro Remoto con Skopeo
 
@@ -45,17 +45,12 @@ podman load -i nombre_imagen.tar
 
 ### Notas Adicionales
 
-> **Nota:** asegúrate de tener permisos y acceso al registro remoto para descargar las imágenes.
-
-- Al utilizar SELinux con contenedores, es importante considerar las políticas de seguridad SELinux. Podman y otras herramientas de contenedores están diseñadas para trabajar con SELinux de manera segura.
-- Si encuentras problemas relacionados con SELinux al trabajar con contenedores, considera revisar y ajustar las políticas de SELinux según sea necesario.
-- SELinux puede afectar las operaciones de contenedores, así que es crucial entender cómo interactúan y ajustar las configuraciones de SELinux según sea necesario.
-
-Recuerda que estas instrucciones pueden variar según la versión específica de las herramientas y la distribución del sistema. Consulta la documentación oficial de Podman, Skopeo y SELinux para obtener información más detallada y actualizada.
+- Necesitas permisos y acceso al registro remoto para descargar las imágenes.
+- Las políticas de SELinux pueden afectar las operaciones de contenedores; revisa y ajústalas si es necesario.
 
 ## Examine las imágenes en contenedores
 
-Para examinar las imágenes en contenedores, puedes utilizar varias herramientas y comandos para obtener información detallada sobre las imágenes disponibles en tu sistema. A continuación se muestran algunos enfoques comunes utilizando Podman y Skopeo.
+Examina las imágenes disponibles en tu sistema con Podman y Skopeo.
 
 ### Usando Podman
 
@@ -103,11 +98,8 @@ Proporciona información detallada sobre una imagen en un registro remoto.
 
 ### Notas Adicionales
 
-- Al utilizar SELinux con contenedores, ten en cuenta que las políticas de SELinux pueden afectar las operaciones relacionadas con imágenes y contenedores. Ajusta las configuraciones de SELinux según sea necesario.
+- Las políticas de SELinux pueden afectar las operaciones relacionadas con imágenes y contenedores.
 - Al explorar el sistema de archivos de una imagen con `podman run`, puedes examinar su contenido y comprender mejor su estructura interna.
-- Utiliza estos comandos según tus necesidades específicas y el entorno en el que estás trabajando.
-
-Recuerda que las herramientas y comandos mencionados pueden variar según la versión específica y la distribución del sistema. Consulta la documentación oficial de Podman, Skopeo y SELinux para obtener detalles adicionales y actualizados.
 
 ## Gestione los contenedores con comandos, como Podman y Skopeo
 
@@ -189,8 +181,6 @@ skopeo delete docker://nombre_registro/nombre_imagen:etiqueta_contenedor
 skopeo list-tags docker://nombre_registro/nombre_imagen
 ```
 
-Estos comandos básicos permiten crear, gestionar y supervisar contenedores con Podman y realizar operaciones con imágenes utilizando Skopeo. Ajusta los comandos según tus necesidades específicas y entorno de trabajo. Además, ten en cuenta que las versiones de las herramientas y sus capacidades pueden variar, por lo que siempre es recomendable consultar la documentación oficial para obtener información detallada.
-
 ## Diseñe un contenedor a partir de un archivo de contenedor
 
 Diseñar un contenedor implica crear un archivo de definición del contenedor, típicamente conocido como Dockerfile (o Containerfile en el ecosistema Podman). Este archivo especifica cómo se construirá la imagen del contenedor y qué configuraciones y comandos deben ejecutarse dentro del contenedor.
@@ -248,13 +238,13 @@ docker build -t nombre_imagen:etiqueta_contenedor .
 docker run -it nombre_imagen:etiqueta_contenedor
 ```
 
-Este es un ejemplo básico, y puedes personalizar el Dockerfile según las necesidades específicas de tu aplicación. Añade o modifica secciones según los requisitos de tu proyecto. Recuerda que Dockerfile utiliza una sintaxis específica, así que ten cuidado con la indentación y el formato.
+Dockerfile utiliza una sintaxis específica, así que ten cuidado con la indentación y el formato.
 
 > **Nota:** Podman también es una alternativa a Docker y puede utilizarse de manera similar. Los comandos pueden variar ligeramente, pero el enfoque general es el mismo.
 
 ## Realice una gestión básica de los contenedores, como ejecutar, iniciar, detener y registrar aquellos que se encuentran en funcionamiento
 
-Gestionar contenedores implica realizar operaciones básicas como ejecutar, iniciar, detener y ver el registro de los contenedores en funcionamiento. A continuación se presentan los comandos básicos para realizar estas operaciones utilizando Docker. Ten en cuenta que los comandos pueden variar según la versión específica de Docker o Podman, así que ajusta según tu entorno.
+Ejecuta, inicia, detén y revisa el registro de contenedores con estos comandos básicos de Docker.
 
 ### Operaciones Básicas con Docker
 
@@ -316,13 +306,12 @@ docker exec -it mi_contenedor comando
 ```
 
 - Al listar contenedores con `docker ps`, la opción `-a` muestra todos los contenedores, incluidos los detenidos.
-- Asegúrate de tener los permisos necesarios para realizar estas operaciones.
 
-Estos comandos son para Docker, pero si estás utilizando Podman como alternativa, los comandos suelen ser muy similares y adaptarlos es sencillo, aunque ten en cuenta que algunas opciones pueden variar. Consulta la documentación oficial de Podman si es tu elección.
+Estos comandos son para Docker, pero con Podman como alternativa suelen ser muy similares.
 
 ## Ejecute un servicio dentro de un contenedor
 
-Para ejecutar un servicio dentro de un contenedor, generalmente debes utilizar el comando que inicia el servicio deseado en el contenedor. A continuación se muestra un ejemplo básico utilizando Docker. Ten en cuenta que los comandos pueden variar según el servicio que desees ejecutar.
+Para ejecutar un servicio dentro de un contenedor, utiliza el comando que inicia el servicio deseado en el contenedor.
 
 ### Ejemplo de Ejecución de un Servicio en Docker
 
@@ -356,9 +345,7 @@ Asegúrate de que el contenedor esté en ejecución.
 
 ### Notas Adicionales
 
-- Adapta estos pasos al servicio específico que desees ejecutar. Cambia la imagen (`nginx` en este caso) y ajusta los parámetros según las necesidades del servicio.
 - Puedes utilizar la opción `-v` para montar volúmenes y compartir datos entre el host y el contenedor.
-- Asegúrate de tener permisos y recursos suficientes para ejecutar el servicio.
 - Para detener el servicio, utiliza:
 
 ```bash
@@ -371,11 +358,11 @@ docker stop mi_servicio_nginx
 docker rm mi_servicio_nginx
 ```
 
-Este ejemplo utiliza Nginx, pero el procedimiento es similar para otros servicios. Consulta la documentación del servicio específico que deseas ejecutar para obtener información detallada sobre cómo ejecutarlo en un contenedor.
+Este ejemplo utiliza Nginx, pero el procedimiento es similar para otros servicios.
 
 ## Configure un contenedor para que inicie automáticamente como un servicio systemd
 
-Para configurar un contenedor para que se inicie automáticamente como un servicio systemd, puedes crear un archivo de unidad systemd. A continuación se muestra un ejemplo básico utilizando Docker y systemd. Asegúrate de tener systemd instalado en el host y sigue estas instrucciones.
+Para que un contenedor se inicie automáticamente como un servicio systemd, crea un archivo de unidad systemd.
 
 ### Paso 1: Crear un Archivo de Unidad systemd (`mi_contenedor.service`)
 
@@ -424,7 +411,6 @@ sudo systemctl start mi_contenedor.service
 
 ### Notas Adicionales
 
-- Asegúrate de ajustar el nombre del contenedor y los comandos según tu configuración específica.
 - El ejemplo utiliza `Restart=always` para reiniciar automáticamente el servicio si se detiene inesperadamente.
 - Puedes revisar el registro del servicio con `journalctl -u mi_contenedor.service`.
 - Para detener y deshabilitar el servicio, utiliza:
@@ -433,8 +419,6 @@ sudo systemctl start mi_contenedor.service
 sudo systemctl stop mi_contenedor.service
 sudo systemctl disable mi_contenedor.service
 ```
-
-Este ejemplo es específico para Docker y systemd en sistemas basados en Linux. Asegúrate de revisar la documentación relevante según las tecnologías específicas que estás utilizando.
 
 ## Asigne un almacenamiento permanente a un contenedor
 
@@ -479,5 +463,3 @@ docker start mi_contenedor
 ```
 
 Incluso después de detener y reiniciar el contenedor, los datos en el volumen `mi_volumen` seguirán estando disponibles.
-
-Este es solo un ejemplo básico, y hay otras formas de gestionar almacenamiento persistente en contenedores según tus necesidades específicas y las herramientas que estés utilizando.

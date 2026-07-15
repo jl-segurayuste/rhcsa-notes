@@ -2,7 +2,7 @@
 
 ## Configure las direcciones IPv4 e IPv6
 
-Para configurar direcciones IPv4 e IPv6 en sistemas basados en Red Hat (como RHEL, CentOS y Fedora), generalmente se utiliza el comando `nmcli` (NetworkManager Command-Line Interface). A continuación se detallan instrucciones básicas para configurar direcciones IP tanto IPv4 como IPv6. Asegúrate de tener privilegios de superusuario para realizar estas operaciones.
+Configura direcciones IPv4 e IPv6 en sistemas basados en Red Hat con `nmcli` (NetworkManager Command-Line Interface).
 
 Tabla de referencia de máscaras de subred (valor binario del último octeto y su equivalente decimal):
 
@@ -99,10 +99,6 @@ ip addr show dev eth0
 
 Esto mostrará solo la información relevante para la interfaz `eth0`.
 
-### Resumen
-
-La utilidad `ip` es fundamental para la gestión de redes en sistemas Linux modernos. Ofrece un control detallado y una visibilidad completa sobre las direcciones IP, las rutas de enrutamiento y el estado de los enlaces de red, entre otras cosas. Conocer estos comandos básicos permite gestionar y solucionar problemas de red de manera eficiente en un entorno Linux.
-
 ### Validación de la disponibilidad de puertos y servicios
 
 Para validar la disponibilidad de puertos y servicios en un servidor, se pueden utilizar las herramientas `netstat` y `ss`. En este contexto, se recomienda usar `ss` ya que es una herramienta más moderna y eficiente.
@@ -159,8 +155,6 @@ Para verificar la configuración de red y la disponibilidad de puertos, sigue es
 1. Ejecutar el comando `ss -lt` para listar todos los puertos TCP en escucha.
 2. Revisar la salida para asegurarse de que los puertos críticos estén en escucha en las direcciones IP correctas.
 3. Asegurarse de que los puertos necesarios estén accesibles desde las redes externas si es necesario, verificando que no estén limitados a las direcciones de loopback (`127.0.0.1` o `::1`).
-
-Estos pasos ayudan a diagnosticar y resolver problemas relacionados con la disponibilidad de puertos y servicios en un servidor.
 
 ### Configuración de Direcciones IPv4 con `nmcli`
 
@@ -238,8 +232,6 @@ sudo nmcli connection up "Nombre de la Conexión"
 
 Reemplaza `"Nombre de la Conexión"` con el nombre de la conexión que estás configurando.
 
-Estos son comandos básicos para configurar direcciones IPv4 e IPv6 en conexiones de red utilizando `nmcli`. Asegúrate de adaptar los comandos según la configuración específica del sistema y la interfaz de red que estás configurando.
-
 ### Ejemplos adicionales de modificación de una conexión con `nmcli`
 
 1. **Asegurar que la conexión estática no se conecte automáticamente:**
@@ -301,8 +293,6 @@ Este comando activa la conexión "static" con las nuevas configuraciones que se 
 | `nmcli con mod static +ipv4.addresses 10.20.30.40/16` | Agrega una segunda dirección IP (`10.20.30.40/16`) a la conexión "static". |
 | `nmcli con up static` | Activa la conexión "static" con las configuraciones actualizadas. |
 
-Estos pasos muestran cómo modificar varios parámetros de una conexión de red y cómo activarlos utilizando `nmcli`, lo que permite una administración flexible y detallada de las conexiones de red en un sistema Linux.
-
 **Modificar la segunda dirección IP añadida a una conexión**
 
 Para modificar la segunda dirección IP que se ha añadido a la conexión "static" utilizando `nmcli`, primero debes conocer la sintaxis exacta y los detalles de las direcciones IP que se están configurando:
@@ -340,11 +330,9 @@ nmcli con mod static +ipv4.addresses 10.20.30.50/16
 nmcli con up static
 ```
 
-Este proceso asegura que la segunda dirección IP en la conexión "static" se actualice correctamente.
-
 ## Configure la resolución de nombre de host
 
-Para configurar la resolución de nombres de host en sistemas basados en Red Hat (como RHEL, CentOS y Fedora), generalmente se utiliza el archivo `/etc/hosts` y la configuración del sistema. A continuación se detallan algunos pasos básicos.
+La resolución de nombres de host en sistemas basados en Red Hat se configura generalmente mediante el archivo `/etc/hosts` y la configuración del sistema.
 
 ### Modificar el Archivo `/etc/hosts`
 
@@ -397,13 +385,10 @@ Reemplaza `"Nombre de la Conexión"` con el nombre de la conexión que estás co
 
 ### Notas Adicionales
 
-- La configuración del archivo `/etc/hosts` tiene prioridad sobre la resolución de nombres a través de DNS. Asegúrate de que las entradas en `/etc/hosts` reflejen tu configuración deseada.
-- La configuración de `nmcli` puede variar según la versión específica de NetworkManager en tu sistema. Ajusta los comandos según sea necesario.
+- La configuración del archivo `/etc/hosts` tiene prioridad sobre la resolución de nombres a través de DNS.
 - Si tu sistema utiliza un servidor DNS (por ejemplo, configurado en `/etc/resolv.conf`), asegúrate de que la resolución de nombres sea coherente con la configuración de DNS.
 
 ## Configure los servicios de red para que se inicien automáticamente al arrancar
-
-Si te refieres a la configuración de interfaces de red en sistemas basados en Red Hat, ten en cuenta que la ubicación del archivo de configuración puede variar según la versión del sistema operativo.
 
 **Configurar interfaces de red para iniciar automáticamente:**
 
@@ -445,6 +430,6 @@ Puedes reiniciar el servicio de red para aplicar los cambios:
 sudo systemctl restart network
 ```
 
-> **Nota:** la ubicación del script y el nombre de la interfaz pueden variar según la versión específica del sistema operativo. Asegúrate de utilizar el nombre correcto para tu interfaz y la versión de Red Hat.
+> **Nota:** la ubicación del script y el nombre de la interfaz dependen de la versión del sistema operativo.
 
-Además, ten en cuenta que en sistemas más recientes basados en Red Hat, como RHEL 8 y versiones más recientes, se ha producido una transición hacia `nmcli` y NetworkManager para la configuración de red. Si estás utilizando NetworkManager, puedes configurar interfaces mediante la interfaz gráfica [`nmtui`](https://access.redhat.com/documentation/es-es/red_hat_enterprise_linux/8/html/configuring_basic_system_settings/adding-a-connection-profile-using-nmtui_configuring-and-managing-network-access) o mediante comandos `nmcli`.
+En RHEL 8 y versiones más recientes, la configuración de red ha transicionado hacia `nmcli` y NetworkManager. Con NetworkManager, también puedes configurar interfaces mediante la interfaz gráfica [`nmtui`](https://access.redhat.com/documentation/es-es/red_hat_enterprise_linux/8/html/configuring_basic_system_settings/adding-a-connection-profile-using-nmtui_configuring-and-managing-network-access) o mediante comandos `nmcli`.

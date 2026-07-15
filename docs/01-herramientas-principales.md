@@ -77,8 +77,6 @@
       man nombre_comando
       ```
 
-Recuerda practicar estos comandos en un entorno de laboratorio para fortalecer tus habilidades.
-
 ## Utilice redirección de entrada-salida (`>`, `>>`, `|`, `2>`, etc.)
 
 La redirección de entrada-salida es una técnica importante en la línea de comandos de Linux para manejar flujos de datos. Aquí tienes ejemplos de cómo utilizar diferentes operadores de redirección:
@@ -280,8 +278,6 @@ esac
 2. **Compatibilidad**: son estándar en POSIX, lo que asegura que funcionarán de manera consistente en diferentes sistemas y herramientas.
 3. **Flexibilidad**: permiten definir patrones complejos de forma concisa.
 
-El uso de `[:alpha:]` y otras clases de caracteres POSIX en `bash` y otras herramientas de línea de comandos permite escribir scripts más claros y robustos.
-
 ## Acceda a los sistemas remotos con SSH
 
 1. **Sintaxis básica de conexión SSH:**
@@ -313,7 +309,7 @@ El uso de `[:alpha:]` y otras clases de caracteres POSIX en `bash` y otras herra
 7. **Configuración de archivos de configuración SSH:**
    - Puedes configurar opciones de conexión SSH en el archivo `~/.ssh/config`. Esto puede ser útil para evitar la entrada repetitiva de opciones en la línea de comandos.
 
-Recuerda que la seguridad es crucial al trabajar con SSH. Asegúrate de mantener tus claves privadas seguras y sigue las mejores prácticas de seguridad, como deshabilitar el acceso de root directo y mantener el software SSH actualizado.
+Mantén las claves privadas seguras, deshabilita el acceso de root directo y mantén el software SSH actualizado.
 
 | Opción | Uso |
 | --- | --- |
@@ -356,8 +352,6 @@ Recuerda que la seguridad es crucial al trabajar con SSH. Asegúrate de mantener
    ```
    Esto te pedirá la contraseña del usuario actual (el que está utilizando `sudo`).
 
-Recuerda que para realizar algunas de estas acciones, tu usuario actual puede necesitar privilegios específicos, como pertenecer al grupo `sudo`. Además, el uso de `sudo` puede requerir configuración específica en el sistema.
-
 ## Archive, comprima, desempaquete y descomprima archivos utilizando tar, gzip y bzip2
 
 1. **Archivar archivos con `tar`:**
@@ -387,9 +381,7 @@ Recuerda que para realizar algunas de estas acciones, tu usuario actual puede ne
    bzip2 -d archivo_respaldo.tar.bz2
    ```
 
-Es importante mencionar que al utilizar `tar`, el orden de las opciones (`cvf` o `xvf`, por ejemplo) es crucial. La secuencia `-zxvf` puede usarse si quieres descomprimir y extraer al mismo tiempo.
-
-Recuerda ajustar los nombres de archivos y directorios según tus necesidades específicas. Además, ten cuidado al sobrescribir archivos existentes, ya que estas operaciones pueden modificar o eliminar archivos.
+El orden de las opciones de `tar` (`cvf` o `xvf`, por ejemplo) es crucial. La secuencia `-zxvf` puede usarse si quieres descomprimir y extraer al mismo tiempo.
 
 ## Cree y edite archivos de texto
 
@@ -427,7 +419,7 @@ Recuerda ajustar los nombres de archivos y directorios según tus necesidades es
      - `:q` y presiona `Enter`: Sale del editor.
      - `:wq` o `ZZ`: Guarda y sale.
 
-Estos son solo ejemplos básicos, y ambos editores tienen más funcionalidades. `nano` es más amigable para principiantes, mientras que `vi` puede ser más poderoso una vez que te familiarizas con su modo de comandos.
+`nano` es más amigable para principiantes, mientras que `vi` es más potente una vez que te familiarizas con su modo de comandos.
 
 ## Cree, borre, copie y mueva archivos y directorios
 
@@ -480,8 +472,6 @@ Estos son solo ejemplos básicos, y ambos editores tienen más funcionalidades. 
    mv directorio_origen/ directorio_destino/
    ```
 
-Ten cuidado al utilizar comandos de eliminación (`rm`), especialmente en directorios, para evitar pérdida de datos accidental.
-
 ## Cree enlaces físicos y simbólicos
 
 ### Enlace físico
@@ -533,8 +523,7 @@ Esto mostrará información detallada sobre los archivos, incluyendo el número 
 ### Notas adicionales
 
 - Al eliminar un enlace físico o un enlace simbólico, el archivo original no se elimina a menos que sea el último enlace que hace referencia a ese inodo específico.
-- Los enlaces físicos no pueden atravesar sistemas de archivos, mientras que los enlaces simbólicos pueden referenciar archivos en diferentes sistemas de archivos.
-- Los enlaces simbólicos son útiles cuando necesitas crear referencias a archivos en ubicaciones diferentes o cuando trabajas con directorios.
+- Los enlaces físicos no pueden atravesar sistemas de archivos, mientras que los enlaces simbólicos sí pueden referenciar archivos en sistemas de archivos diferentes.
 
 ## Enumere, configure y cambie permisos ugo/rwx estándares
 
@@ -574,8 +563,6 @@ En sistemas Unix/Linux, la gestión de permisos es crucial para controlar el acc
   ```shell
   chown nuevo_propietario:nuevo_grupo archivo_o_directorio
   ```
-- Ten cuidado al otorgar permisos, ya que proporcionar permisos excesivos puede comprometer la seguridad del sistema.
-- Utiliza la opción `-R` con precaución, ya que puede modificar muchos archivos y directorios a la vez.
 
 ### Permisos avanzados
 

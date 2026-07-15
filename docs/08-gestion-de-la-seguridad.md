@@ -104,7 +104,7 @@ Detrás de cada servicio en Firewalld hay un archivo de configuración en format
 
 Modificar y gestionar estos archivos XML permite un control detallado sobre el tráfico de red y la configuración del firewall en sistemas basados en Linux.
 
-Para restringir el acceso a la red mediante un firewall en sistemas basados en Red Hat, puedes utilizar `firewalld` y su interfaz de línea de comandos `firewall-cmd`. Aquí te proporciono algunos pasos básicos para configurar reglas de firewall:
+Restringe el acceso a la red con `firewalld` y su interfaz de línea de comandos `firewall-cmd`:
 
 1. **Verificar el Estado del Firewall:** Antes de realizar cambios, verifica el estado actual del firewall:
    ```shell
@@ -140,17 +140,10 @@ Para restringir el acceso a la red mediante un firewall en sistemas basados en R
    # Recargar las reglas del firewall
    sudo firewall-cmd --reload
    ```
-   Asegúrate de ajustar las reglas según tus necesidades y la configuración específica de tu sistema.
 6. **Verificar las Reglas Configuradas:** Puedes ver las reglas configuradas en la zona seleccionada con el siguiente comando:
    ```shell
    sudo firewall-cmd --list-all
    ```
-
-**Notas Adicionales:**
-- Asegúrate de seleccionar la zona correcta y ajustar las reglas según la interfaz y los servicios necesarios.
-- Puedes configurar reglas adicionales según los servicios y puertos específicos que deseas permitir o bloquear.
-- Puedes cambiar la zona y las reglas según la configuración de tu red y tus necesidades de seguridad.
-- Estos comandos son básicos y pueden necesitar ajustes según la configuración específica de tu sistema y la versión de Red Hat que estás utilizando.
 
 #### Ejercicio 23-1: Gestionando el Firewall con `firewall-cmd`
 
@@ -335,11 +328,9 @@ Vamos a ilustrar esta diferencia con un ejemplo concreto.
 >    - Este mensaje de error notifica al remitente que su tráfico fue bloqueado por el firewall.
 >    - En lugar de descartar silenciosamente el tráfico, el firewall envía una respuesta de "rechazo" al remitente para informarle que su solicitud fue denegada.
 
-En resumen, "drop" es más silencioso y no proporciona retroalimentación al remitente, mientras que "reject" envía una respuesta de error al remitente para informarle que su tráfico fue bloqueado. La elección entre "drop" y "reject" depende de las necesidades de seguridad y las preferencias del administrador del sistema.
-
 ## Gestione los permisos predeterminados de archivos
 
-En sistemas basados en Red Hat, la gestión de permisos predeterminados de archivos se realiza principalmente a través de los valores umask y a través de los atributos predeterminados en los sistemas de archivos. Aquí te proporciono información sobre ambos:
+La gestión de permisos predeterminados de archivos se realiza principalmente a través de los valores umask y de los atributos predeterminados en los sistemas de archivos.
 
 ### Umask
 
@@ -401,8 +392,6 @@ En este ejemplo, se establecen permisos predeterminados para usuarios (`u`), gru
 > **Diferencias clave:**
 > - `chmod` se centra en los permisos tradicionales de Unix (lectura, escritura, ejecución) y actúa sobre el propietario, grupo y otros.
 > - `setfacl` se utiliza para gestionar permisos ACL, lo que permite definir permisos para usuarios y grupos específicos, y proporciona un mayor nivel de control en comparación con `chmod`.
->
-> En resumen, si solo necesitas cambiar los permisos tradicionales de Unix, `chmod` es suficiente. Si necesitas permisos más detallados, como asignar permisos a usuarios específicos o grupos, entonces puedes utilizar `setfacl`.
 
 ### ACL: Listas de control de acceso
 
@@ -486,7 +475,7 @@ Por lo tanto, este comando otorga al grupo `sales` permisos de lectura y ejecuci
 > 4. **Guarda y cierra el archivo**. Si estás usando `nano`, puedes hacerlo pulsando `Ctrl+X`, luego `Y` para confirmar, y finalmente `Enter` para salir.
 > 5. **Monta de nuevo el sistema de archivos**. Puedes hacerlo con el comando `mount -a`, que montará todos los sistemas de archivos especificados en `/etc/fstab`.
 >
-> Por favor, ten en cuenta que estos pasos requieren privilegios de superusuario. Asegúrate de entender completamente lo que estás haciendo antes de modificar el archivo `/etc/fstab`, ya que un error en este archivo puede hacer que tu sistema no arranque correctamente.
+> Ten cuidado al modificar `/etc/fstab`: un error en este archivo puede hacer que el sistema no arranque correctamente.
 
 > **Nota:** Cuando ves un símbolo "+" al final de la lista de permisos, como en "drwxr-xr-x+", indica que hay configuraciones de ACL (Listas de Control de Acceso) aplicadas al archivo o directorio.
 >
@@ -522,7 +511,7 @@ Comandos adicionales relacionados con ACL (Listas de Control de Acceso) que pued
    ```
    Elimina todas las ACL del archivo o directorio.
 
-Recuerda que el soporte para ACL debe estar habilitado en el sistema de archivos y el kernel para que estos comandos funcionen correctamente. Además, ten en cuenta que el uso de ACL puede complicar la administración de permisos si no es necesario, por lo que es recomendable entender bien sus implicaciones antes de utilizarlas de manera extensiva.
+El soporte para ACL debe estar habilitado en el sistema de archivos y el kernel para que estos comandos funcionen.
 
 > **Atención:** Para el examen de RHCSA, es importante conocer las utilidades de archivado y compresión disponibles en Linux. Aunque la herramienta más comúnmente utilizada y conocida es `tar`, también puedes encontrarte con `star`, que es una herramienta avanzada para la creación de archivos y copias de seguridad.
 >
@@ -585,9 +574,7 @@ Recuerda que el soporte para ACL debe estar habilitado en el sistema de archivos
 >
 > **Consideraciones de seguridad**
 >
-> Al igual que con cualquier herramienta que maneja archivos críticos del sistema, asegúrate de entender los permisos y los contextos de seguridad de SELinux al utilizar `star`. Manipular archivos como root o modificar configuraciones sensibles puede tener implicaciones importantes.
->
-> Con estos conceptos y comandos básicos, estarás bien preparado para manejar situaciones relacionadas con archivado y compresión en el examen RHCSA.
+> Al igual que con cualquier herramienta que maneja archivos críticos del sistema, ten en cuenta los permisos y los contextos de seguridad de SELinux al utilizar `star`.
 
 ### Persistencia de Umask y Atributos Predeterminados
 
@@ -597,7 +584,7 @@ Para hacer que los atributos predeterminados sean persistentes, puedes incorpora
 
 ## Configure la autenticación basada en claves para SSH
 
-La autenticación basada en claves para SSH proporciona un método seguro y conveniente para acceder a sistemas remotos sin la necesidad de ingresar contraseñas cada vez. A continuación, te proporciono una guía para configurar la autenticación basada en claves en sistemas basados en Red Hat:
+La autenticación basada en claves para SSH permite acceder a sistemas remotos sin ingresar contraseñas cada vez.
 
 1. **Generar un Par de Claves en el Cliente:** En el cliente desde el cual te conectarás al servidor, ejecuta el siguiente comando para generar un par de claves SSH (si aún no tienes uno):
    ```shell
@@ -630,9 +617,7 @@ La autenticación basada en claves para SSH proporciona un método seguro y conv
 **Notas Adicionales:**
 - Asegúrate de que las claves privadas (`id_rsa`) estén protegidas y no sean accesibles por usuarios no autorizados.
 - Puedes configurar opciones adicionales en el archivo `~/.ssh/config` en el cliente para personalizar la conexión SSH.
-- La autenticación basada en claves es más segura que la autenticación basada en contraseñas, pero debes seguir las mejores prácticas de seguridad, como proteger tus claves y actualizarlas si es necesario.
-
-Adaptar estos pasos según tus necesidades y políticas de seguridad específicas. La autenticación basada en claves es una práctica recomendada para mejorar la seguridad de las conexiones SSH.
+- La autenticación basada en claves es más segura que la basada en contraseñas, pero debes proteger tus claves privadas y actualizarlas si es necesario.
 
 ## Establezca los modos de cumplimiento y permisivo para SELinux
 
@@ -645,7 +630,7 @@ Adaptar estos pasos según tus necesidades y políticas de seguridad específica
 | **Rule** | Una parte específica de la política que determina qué dominio de origen tiene qué permisos de acceso a qué dominio de destino. |
 | **Labels** | Lo mismo que una etiqueta de contexto, definida para determinar qué dominio de origen tiene acceso a qué dominio de destino. |
 
-SELinux (Security-Enhanced Linux) es un conjunto de extensiones de seguridad para el kernel Linux que proporciona funciones de control de acceso obligatorio (MAC). Puedes establecer el modo de cumplimiento y permisivo para SELinux mediante herramientas como `setenforce` y `semanage`. Aquí tienes una guía básica:
+SELinux (Security-Enhanced Linux) es un conjunto de extensiones de seguridad para el kernel Linux que proporciona funciones de control de acceso obligatorio (MAC). Establece el modo de cumplimiento y permisivo con `setenforce` y `semanage`.
 
 1. **Verificar el Estado Actual de SELinux:**
    ```shell
@@ -721,7 +706,7 @@ Los tipos de contexto son fundamentales para la seguridad de SELinux porque dete
 
 #### Guía para Configurar Tipos de Contexto en SELinux para el Examen RHCSA
 
-En sistemas gestionados por SELinux, los tipos de contexto son fundamentales para asegurar que los recursos del sistema sean accesibles solo de acuerdo con las políticas de seguridad definidas. Para administradores de sistemas, es crucial saber cómo establecer y modificar estos contextos para mantener la integridad y la seguridad del sistema operativo. A continuación, exploraremos cómo configurar los tipos de contexto utilizando las herramientas adecuadas, en particular `semanage` y `restorecon`.
+Configura los tipos de contexto con las herramientas `semanage` y `restorecon`.
 
 #### Uso del Comando `semanage`
 
@@ -754,8 +739,6 @@ En sistemas gestionados por SELinux, los tipos de contexto son fundamentales par
    - `t httpd_sys_script_exec_t`: Esta parte especifica el tipo de contexto que queremos asignar al archivo o directorio. En este caso, el tipo de contexto es `httpd_sys_script_exec_t`, que generalmente se usa para scripts CGI y otros archivos de script ejecutables para servidores web como Apache.
    - `prueba_selinux/`: Es el nombre del archivo o directorio al que queremos aplicar el contexto especificado.
 
-   En resumen, el comando `semanage fcontext -a -t httpd_sys_script_exec_t prueba_selinux/` agrega una regla de contexto de archivo que especifica que el archivo o directorio `prueba_selinux/` debe tener el tipo de contexto `httpd_sys_script_exec_t`. Esto permitiría que los scripts CGI u otros scripts ejecutables sean ejecutados por el servidor web Apache.
-
 #### Aplicar Cambios con `restorecon`
 
 Después de configurar las políticas con `semanage`, debes aplicar estos cambios al sistema de archivos utilizando `restorecon`, que efectivamente aplica los contextos definidos por las políticas a los archivos y directorios en el sistema de archivos.
@@ -768,17 +751,11 @@ Después de configurar las políticas con `semanage`, debes aplicar estos cambio
 #### Consideraciones Importantes
 
 - **No usar `chcon` para Cambios Permanentes:** Evita usar `chcon` para cambios de contexto permanentes, ya que estos cambios no son persistentes a través de relabelados del sistema de archivos y pueden perderse, lo cual es crítico especialmente en un entorno de examen como el RHCSA.
-- **Uso de Manuales y Documentación:** Siempre es buena práctica consultar las páginas del manual (`man`) para obtener ejemplos y una comprensión más profunda de los comandos. Por ejemplo:
-  ```shell
-  man semanage
-  man semanage-fcontext
-  ```
-
-Siguiendo estas instrucciones, puedes asegurarte de que los sistemas que administras mantengan un alto nivel de seguridad y conformidad con las políticas de SELinux, habilidades esenciales para el examen RHCSA y para administradores de sistemas en general.
+- **Manuales:** para más detalle, consulta `man semanage` y `man semanage-fcontext`.
 
 ### Restaure contextos de archivos predeterminados
 
-En SELinux, cada objeto, ya sea un archivo, un directorio o un proceso, tiene un contexto de seguridad asociado. Los contextos de seguridad son etiquetas que indican a SELinux las políticas de seguridad que se aplican a esos objetos. Aquí te dejo algunas herramientas y comandos que puedes utilizar para enumerar e identificar el contexto de archivos y procesos en SELinux:
+En SELinux, cada objeto (archivo, directorio o proceso) tiene un contexto de seguridad asociado, una etiqueta que indica las políticas de seguridad que se le aplican. Herramientas y comandos para enumerar e identificar el contexto de archivos y procesos:
 
 1. **Listar el Contexto de un Archivo o Directorio:**
    ```shell
@@ -815,13 +792,6 @@ En SELinux, cada objeto, ya sea un archivo, un directorio o un proceso, tiene un
    sesearch -A -s proceso -t tipo_contexto
    ```
    Esto proporcionará información detallada sobre el contexto de seguridad especificado.
-
-**Notas Adicionales:**
-- Los comandos y opciones pueden variar según la versión de SELinux y la distribución específica.
-- Es importante entender el significado de los contextos de seguridad y cómo afectan a la política de SELinux.
-- El comando `semanage` también puede ser útil para gestionar políticas de SELinux.
-
-Recuerda que el contexto de seguridad de SELinux es una parte integral del modelo de seguridad, y cambiarlo sin entender completamente las implicaciones puede afectar la seguridad del sistema. Siempre revisa y comprende las políticas de SELinux antes de realizar cambios en los contextos de seguridad.
 
 ### Gestione las etiquetas de puerto SELinux
 
@@ -874,7 +844,6 @@ Recuerda que el contexto de seguridad de SELinux es una parte integral del model
 > sudo restorecon -Rv /web
 > ```
 >
-> Con estos pasos, deberías poder usar el comando `semanage` sin problemas y aplicar el contexto de seguridad adecuado a tu directorio.
 
 SELinux utiliza etiquetas de puerto para controlar las conexiones de red y aplicar políticas de seguridad. Aquí hay algunos comandos y pasos para gestionar las etiquetas de puerto SELinux:
 
@@ -910,15 +879,11 @@ SELinux utiliza etiquetas de puerto para controlar las conexiones de red y aplic
    Esto muestra todos los tipos de contexto de etiquetas de puerto utilizados.
 
 **Notas Adicionales:**
-- Los comandos anteriores asumen el uso de `semanage`. En algunas distribuciones, como Red Hat y CentOS, se puede usar `semanage` para gestionar las políticas de SELinux relacionadas con puertos.
-- Asegúrate de comprender la relación entre las etiquetas de puerto, los contextos de seguridad y las políticas de SELinux antes de realizar cambios.
-- Los cambios en las etiquetas de puerto pueden afectar el acceso de red de las aplicaciones, por lo que debes considerar cuidadosamente cualquier ajuste que realices.
-
-Recuerda que la gestión de etiquetas de puerto en SELinux es una parte importante para controlar el acceso de red de las aplicaciones y garantizar la seguridad del sistema. Realiza cambios con precaución y considera las implicaciones de seguridad antes de aplicar configuraciones nuevas o modificar las existentes.
+- Los cambios en las etiquetas de puerto pueden afectar el acceso de red de las aplicaciones, así que considera cuidadosamente cualquier ajuste.
 
 ### Utilice una configuración booleana para modificar los ajustes de SELinux del sistema
 
-En SELinux, los booleanos son valores que permiten habilitar o deshabilitar características específicas del sistema. Puedes utilizar comandos como `getsebool`, `setsebool`, y `semanage` para trabajar con booleanos y modificar ajustes de SELinux en el sistema. Aquí tienes algunos pasos básicos:
+Los booleanos de SELinux permiten habilitar o deshabilitar características específicas del sistema. Se gestionan con `getsebool`, `setsebool` y `semanage`.
 
 1. **Verificar el Estado Actual de los Booleanos:**
    ```shell
@@ -949,8 +914,4 @@ En SELinux, los booleanos son valores que permiten habilitar o deshabilitar cara
    Esto modificará el estado de un booleano y hará que el cambio sea persistente.
 
 **Notas Adicionales:**
-- Algunos booleanos están relacionados con servicios específicos o funciones de SELinux. Es importante entender el propósito de cada booleano antes de habilitarlo o deshabilitarlo.
-- Los cambios en los booleanos pueden afectar el comportamiento de SELinux y, por lo tanto, deben realizarse con precaución.
-- Utiliza la opción `P` con `setsebool` para hacer que los cambios sean persistentes. Sin esta opción, los cambios solo se aplicarán en la sesión actual.
-
-Recuerda que SELinux es una herramienta poderosa para mejorar la seguridad del sistema, y la modificación de booleanos debe realizarse con precaución para garantizar la integridad y el funcionamiento adecuado del sistema. Además, es crucial entender el propósito de cada booleano antes de realizar cambios.
+- Utiliza la opción `-P` con `setsebool` para hacer que los cambios sean persistentes; sin ella, solo se aplican en la sesión actual.

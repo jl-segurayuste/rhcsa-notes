@@ -211,13 +211,12 @@ Puedes verificar que los cambios se hayan aplicado correctamente reiniciando el 
 
 ### Notas adicionales
 
-- La ubicación de los archivos de configuración puede variar según la versión específica del sistema operativo y la configuración del sistema.
 - Si estás utilizando UEFI en lugar de BIOS, los pasos y los comandos pueden ser diferentes.
-- Realizar cambios en el cargador de arranque puede tener un impacto significativo en la capacidad de arranque del sistema. Asegúrate de entender completamente las configuraciones antes de realizar modificaciones.
+- Realizar cambios en el cargador de arranque puede tener un impacto significativo en la capacidad de arranque del sistema.
 
 ## Identificar procesos con uso intensivo de CPU y memoria, y eliminarlos
 
-Para identificar y eliminar procesos con uso intensivo de CPU y memoria en sistemas Unix/Linux, puedes utilizar comandos como `top`, `ps` y `kill`.
+Identifica y elimina procesos con uso intensivo de CPU y memoria con `top`, `ps` y `kill`.
 
 ### Identificar procesos con `top`
 
@@ -245,7 +244,7 @@ Para identificar y eliminar procesos con uso intensivo de CPU y memoria en siste
   kill -9 <PID>
   ```
 
-`kill -9` es una acción drástica que fuerza la terminación inmediata del proceso; úsalo con precaución. En algunos casos puede ser necesario tener privilegios de administrador (`sudo`), y la terminación abrupta de ciertos procesos podría afectar la estabilidad del sistema.
+`kill -9` fuerza la terminación inmediata del proceso; úsalo con precaución, ya que la terminación abrupta de ciertos procesos podría afectar la estabilidad del sistema.
 
 ## Ajustar la programación de los procesos
 
@@ -710,7 +709,7 @@ sudo reboot
 - **`/etc/security/limits.d/`**: al igual que `limits.conf`, permite establecer límites de recursos.
 - **`/etc/security/namespace.conf`**: configura las restricciones de los espacios de nombres de contenedores (si aplicable).
 
-Ajustar parámetros del sistema puede tener un impacto significativo, por lo que es importante comprender cómo afectarán al rendimiento y estabilidad del sistema antes de realizar cambios. Algunos ajustes pueden requerir privilegios de administrador (`sudo`).
+Ajustar parámetros del sistema puede tener un impacto significativo en el rendimiento y la estabilidad, así que comprende su efecto antes de realizar cambios.
 
 ## Localizar e interpretar los diarios y archivos de registro del sistema
 
@@ -1161,15 +1160,6 @@ Explicación de las directivas:
 - **`compress`** (comentado): si se descomenta, `logrotate` comprimirá los archivos rotados usando gzip.
 - **`include /etc/logrotate.d`**: incluye configuraciones adicionales de rotación de logs, permitiendo que paquetes RPM instalen sus propias configuraciones sin modificar el archivo principal.
 
-### Resumen de la configuración
-
-- **weekly**: rota los archivos de log semanalmente.
-- **rotate 4**: mantiene un historial de 4 semanas de archivos de log rotados.
-- **create**: crea un nuevo archivo de log vacío después de la rotación.
-- **dateext**: usa la fecha como sufijo en los archivos de log rotados.
-- **compress**: si se descomenta, comprime los archivos de log rotados.
-- **include /etc/logrotate.d**: incluye configuraciones adicionales desde ese directorio.
-
 ### Ejecutar rotación manualmente
 
 ```shell
@@ -1309,7 +1299,7 @@ sudo systemctl status ssh
 
 ## Transferencia segura de archivos: SCP y SFTP
 
-Para transferir archivos de forma segura entre diferentes sistemas en Linux, puedes utilizar SCP (Secure Copy Protocol) o SFTP (Secure File Transfer Protocol), ambos basados en SSH.
+Transfiere archivos de forma segura entre sistemas con SCP (Secure Copy Protocol) o SFTP (Secure File Transfer Protocol), ambos basados en SSH.
 
 ### SCP (Secure Copy)
 
@@ -1355,7 +1345,7 @@ Luego puedes utilizar los comandos `get` y `put` para transferir archivos de for
 sftp usuario@direccion_remota:/ruta/origen/archivo.txt /ruta/destino/
 ```
 
-Estos comandos asumen que tienes un servidor SSH configurado en el sistema remoto y las credenciales de inicio de sesión. Ambos métodos proporcionan una forma segura y cifrada de transferir archivos entre sistemas.
+Estos comandos asumen que tienes un servidor SSH configurado en el sistema remoto y las credenciales de inicio de sesión.
 
 ## Rsync
 
@@ -1405,4 +1395,4 @@ rsync -aAX /path/to/source/ /path/to/destination/
 
 Útil en entornos donde el mantenimiento de ACLs y los contextos de SELinux es crucial, como en servidores con configuraciones de seguridad detalladas.
 
-`rsync` es notablemente robusto y cuenta con numerosas opciones para personalizar exactamente cómo se realiza la transferencia de archivos. Se recomienda consultar el manual (`man rsync`) para obtener detalles más profundos y opciones avanzadas.
+Consulta `man rsync` para el resto de opciones avanzadas.

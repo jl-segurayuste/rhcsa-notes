@@ -142,7 +142,6 @@ En este ejemplo:
 
 Notas adicionales:
 
-- Asegúrate de tener permisos de ejecución para el script (`chmod +x nombre_script.sh`) antes de ejecutarlo.
 - Puedes utilizar operadores de comparación como `eq` (igual), `ne` (no igual), `ge` (mayor o igual), `le` (menor o igual), etc.
 - La variable `$numero` contiene el valor ingresado por el usuario.
 
@@ -400,36 +399,6 @@ Sigue ejecutándose mientras la entrada del usuario no sea "exit". Cada vez que 
 
 - **`for`**: se utiliza para iterar sobre una lista de elementos predefinidos. El número de iteraciones está determinado por el tamaño de la lista.
 - **`while`**: se utiliza para ejecutar comandos repetidamente mientras una condición sea verdadera. El número de iteraciones depende de cuándo se cumpla la condición.
-
-### Resumen de ejemplos
-
-```bash
-# for: iterar sobre una lista de elementos
-for item in item1 item2 item3; do
-  echo $item
-done
-
-# for: iterar sobre una secuencia de números
-for i in {1..5}; do
-  echo $i
-done
-```
-
-```bash
-# while: bucle con condición numérica
-counter=10
-while [ $counter -gt 0 ]; do
-  echo $counter
-  counter=$((counter - 1))
-done
-
-# while: bucle que espera una entrada específica del usuario
-input=""
-while [ "$input" != "exit" ]; do
-  echo "Type 'exit' to stop"
-  read input
-done
-```
 
 ### Ejercicios para practicar
 
@@ -1215,8 +1184,6 @@ if [ "$nombre" = "Juan" ]; then     # Comparación de strings
 | **Funciones** | Paréntesis después del nombre | `funcion() {` |
 | **Comentarios** | Empezar con `#` | `# Comentario` |
 | **Indentación** | Consistente (2 o 4 espacios) | `comando` |
-
-La sintaxis correcta es fundamental para que tus scripts funcionen sin errores.
 
 ## Script de ejemplo: menú interactivo con `case`
 

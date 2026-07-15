@@ -129,11 +129,11 @@ crontab -l  # Ver tareas programadas
 crontab -r  # Eliminar todas las tareas programadas
 ```
 
-Estos son solo ejemplos básicos, y hay muchas opciones más avanzadas disponibles para `at` y `cron`. Asegúrate de revisar las páginas de manual (`man at`, `man cron`, `man crontab`) para obtener más detalles y opciones avanzadas.
+Para opciones avanzadas, consulta `man at`, `man cron` y `man crontab`.
 
 ## Inicie y detenga los servicios, además de configurarlos para que se inicien automáticamente al arrancar
 
-La administración de servicios en sistemas Linux implica iniciar, detener y configurar servicios para que se inicien automáticamente al arrancar el sistema. La forma de hacerlo puede variar según la distribución del sistema operativo. A continuación, ejemplos utilizando los comandos `systemctl`, comunes en sistemas basados en systemd, como Red Hat, Fedora, CentOS y Ubuntu.
+Inicia, detén y configura el arranque automático de servicios con `systemctl`, común en sistemas basados en systemd como Red Hat, Fedora, CentOS y Ubuntu. En todos los comandos siguientes, reemplaza `nombre_del_servicio` con el nombre real del servicio.
 
 ### Iniciar y Detener Servicios con `systemctl`
 
@@ -143,23 +143,17 @@ La administración de servicios en sistemas Linux implica iniciar, detener y con
 sudo systemctl start nombre_del_servicio
 ```
 
-Reemplaza `nombre_del_servicio` con el nombre del servicio que deseas iniciar.
-
 #### Detener un Servicio
 
 ```bash
 sudo systemctl stop nombre_del_servicio
 ```
 
-Reemplaza `nombre_del_servicio` con el nombre del servicio que deseas detener.
-
 #### Reiniciar un Servicio
 
 ```bash
 sudo systemctl restart nombre_del_servicio
 ```
-
-Reemplaza `nombre_del_servicio` con el nombre del servicio que deseas reiniciar.
 
 ### Configurar Inicio Automático al Arrancar
 
@@ -169,23 +163,17 @@ Reemplaza `nombre_del_servicio` con el nombre del servicio que deseas reiniciar.
 sudo systemctl enable nombre_del_servicio
 ```
 
-Reemplaza `nombre_del_servicio` con el nombre del servicio que deseas configurar para iniciar automáticamente.
-
 #### Desactivar el Inicio Automático de un Servicio
 
 ```bash
 sudo systemctl disable nombre_del_servicio
 ```
 
-Reemplaza `nombre_del_servicio` con el nombre del servicio que deseas configurar para no iniciar automáticamente.
-
 #### Ver el Estado de un Servicio
 
 ```bash
 sudo systemctl status nombre_del_servicio
 ```
-
-Reemplaza `nombre_del_servicio` con el nombre del servicio del cual deseas ver el estado.
 
 ### Ejemplo Práctico
 
@@ -211,11 +199,9 @@ sudo systemctl disable nginx
 sudo systemctl status nginx
 ```
 
-Asegúrate de reemplazar `nginx` con el nombre del servicio que estás administrando. Estos comandos pueden variar ligeramente según la distribución específica de Linux que estés utilizando.
-
 ## Configure los sistemas para que se inicien automáticamente en un destino específico
 
-En sistemas Linux basados en systemd, puedes configurar servicios para que se inicien automáticamente en un destino específico utilizando el comando `systemctl`. Aquí tienes los pasos generales:
+Configura servicios para que se inicien automáticamente en un destino específico con `systemctl`:
 
 ### Configurar un Servicio para Iniciar Automáticamente en un Destino Específico
 
@@ -258,8 +244,6 @@ sudo systemctl enable --now nginx.service
 
 Esto configurará `nginx` para que se inicie automáticamente en el destino `multi-user.target` y lo iniciará inmediatamente.
 
-Recuerda que el nombre del servicio puede variar según la distribución y la configuración específica de tu sistema. Asegúrate de reemplazar `nginx` con el nombre del servicio que estás configurando.
-
 ## Configure los clientes de servicios de tiempo (Capítulo 25)
 
 ### Tabla 25-2. Comprensión del Tiempo en Linux
@@ -292,7 +276,7 @@ Configurar un servidor para usar tiempo NTP en RHEL 8 es fácil si el servidor y
 >
 > El uso del tiempo epoch también crea un problema potencial de temporización en Linux. En un sistema de 32 bits, el número de segundos que se pueden contar en el campo reservado para la notación de tiempo se excederá en 2037. (Intenta establecer la hora en algún momento de 2050 si estás en un kernel de 32 bits; no funcionará). Los sistemas de 64 bits pueden gestionar el tiempo hasta bien entrado el siglo XXII.
 
-Para configurar los clientes de servicios de tiempo en sistemas Linux, generalmente se utiliza el servicio `systemd-timesyncd` que es parte del sistema de inicio systemd. Este servicio proporciona una implementación simple de cliente NTP (Network Time Protocol). Aquí hay algunos pasos para configurar el cliente de servicios de tiempo:
+El cliente de servicios de tiempo se configura generalmente con `systemd-timesyncd`, parte del sistema de inicio systemd, que proporciona una implementación simple de cliente NTP (Network Time Protocol).
 
 ### Configurar el Cliente NTP con `systemd-timesyncd`
 
@@ -379,9 +363,7 @@ sudo systemctl status systemd-timesyncd
   sudo systemctl enable systemd-timesyncd
   ```
 
-**Nota:**
-- Es posible que necesites ajustar el procedimiento según la distribución específica de Linux que estés utilizando. El proceso puede variar en sistemas diferentes.
-- Si prefieres utilizar un cliente NTP diferente, como `ntp`, `chrony`, u otros, el proceso de instalación y configuración será diferente. Consulta la documentación de la herramienta específica que estás utilizando.
+**Nota:** si prefieres un cliente NTP diferente, como `ntp` o `chrony`, el proceso de instalación y configuración es distinto.
 
 ## Instale y actualice paquetes de software desde Red Hat Network, un repositorio remoto, o desde el sistema de archivos local
 
@@ -398,7 +380,7 @@ sudo systemctl status systemd-timesyncd
 | update | Actualizar los paquetes especificados |
 | clean all | Eliminar todos los metadatos almacenados |
 
-Para instalar y actualizar paquetes de software en sistemas basados en Red Hat (como Red Hat Enterprise Linux, CentOS y Fedora), puedes utilizar el sistema de gestión de paquetes `yum` o `dnf` (dependiendo de la versión del sistema operativo).
+Instala y actualiza paquetes en sistemas basados en Red Hat (RHEL, CentOS, Fedora) con `yum` o `dnf`, según la versión del sistema operativo.
 
 ### Utilizando `yum` (en versiones antiguas de RHEL/CentOS) o `dnf` (en versiones recientes y Fedora)
 
@@ -452,5 +434,3 @@ sudo dnf localinstall /ruta/al/paquete.rpm   # Para RHEL/CentOS versiones recien
 ```
 
 Reemplaza `/ruta/al/paquete.rpm` con la ruta real al paquete RPM en tu sistema.
-
-Estos son comandos básicos para instalar y actualizar paquetes en sistemas basados en Red Hat. Ten en cuenta que las versiones específicas de RHEL/CentOS y Fedora pueden tener ligeras variaciones en los comandos y las herramientas utilizadas.
