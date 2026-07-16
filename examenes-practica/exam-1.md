@@ -2,7 +2,7 @@
 
 ## Árbol de directorios y SELinux
 
-Aquí está cómo puedes crear la jerarquía de directorios y aplicar los contextos de SELinux correspondientes a `/etc` de manera recursiva:
+Crea la jerarquía de directorios y aplica los contextos de SELinux correspondientes a `/etc` de manera recursiva:
 
 ### Comando completo:
 
@@ -39,7 +39,6 @@ Esto mostrará los contextos de los directorios, y deberías ver algo similar a 
 
 ### Notas adicionales:
 
-- Asegúrate de tener privilegios de root para ejecutar los comandos.
 - Si no tienes `semanage` instalado, puedes instalarlo con el paquete `policycoreutils-python-utils` en distribuciones basadas en RHEL/CentOS/AlmaLinux/Rocky Linux.
 
 ## Enable access to the atd service for user20 and deny for user30
@@ -59,7 +58,7 @@ tar -jcvf /tmp/etc.tar.bz2 /etc/sysconfig/
 
 ## Mensaje personalizado al archivo /var/log/messages
 
-Aquí tienes los pasos para agregar un mensaje personalizado al archivo `/var/log/messages` y confirmar que se haya registrado correctamente usando una expresión regular:
+Pasos para agregar un mensaje personalizado al archivo `/var/log/messages` y confirmar que se haya registrado correctamente usando una expresión regular:
 
 ### Pasos:
 

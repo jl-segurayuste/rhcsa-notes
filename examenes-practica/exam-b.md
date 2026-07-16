@@ -2,7 +2,7 @@
 
 ## Grupos con requerimientos especiales
 
-Los requerimientos implican configurar permisos avanzados para cumplir con ciertas políticas de acceso y seguridad. Desglose de cada uno:
+Los requerimientos implican configurar permisos avanzados para cumplir con ciertas políticas de acceso y seguridad:
 
 ### 1. Los miembros del grupo `livingopensource` tienen acceso completo a su directorio
 
@@ -261,8 +261,6 @@ El firewall y SELinux son aspectos críticos para este ejercicio. Configura:
 
 1. El puerto y/o servicio en el firewall.
 2. El contexto de SELinux para las rutas o puertos personalizados.
-
-Esto asegura que el servidor web funcione de manera segura y cumpla con los requisitos del ejercicio.
 
 ---
 

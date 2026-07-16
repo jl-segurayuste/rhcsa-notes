@@ -143,8 +143,6 @@ Confirma que la partición está montada correctamente en `/mydata`:
 df -h /mydata
 ```
 
-Con estos pasos, la partición de 500 MiB en el segundo disco se montará automáticamente en `/mydata` cada vez que inicies el sistema.
-
 ## 3. Configuración de parámetros de contraseñas para nuevos usuarios
 
 Para establecer valores predeterminados para usuarios nuevos y configurar advertencias y caducidad de contraseñas en el sistema, puedes editar las políticas de contraseña en el archivo `/etc/login.defs` y usar el comando `chage` para ajustar configuraciones predeterminadas para usuarios.
@@ -277,8 +275,6 @@ sudo setfacl -d -m u:alex:rw /groups/data  # Permiso de lectura por defecto en a
 getfacl /groups/sales
 getfacl /groups/data
 ```
-
-Esto confirma que los permisos cumplen los requisitos dados para cada grupo y para el usuario `alex`.
 
 ## 6. Crear partición swap
 

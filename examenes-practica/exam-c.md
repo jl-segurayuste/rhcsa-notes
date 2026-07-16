@@ -202,7 +202,7 @@ sudo chage --mindays 3 user1
 ### Conclusión
 
 - La configuración en `/etc/login.defs` está bien y aplica globalmente a los usuarios creados después de modificar el archivo.
-- Sin embargo, para garantizar que el requisito de longitud mínima de contraseñas sea efectivo, también debes configurar y verificar las políticas en **PAM** y **pwquality**. Esto asegura que las políticas de contraseñas sean aplicadas en todo el sistema.
+- Sin embargo, para garantizar que el requisito de longitud mínima de contraseñas sea efectivo, también debes configurar y verificar las políticas en **PAM** y **pwquality**.
 
 ## 4. Creación de grupos y usuario que pertenezcan a esos grupos
 
@@ -343,8 +343,6 @@ ssh root@<server_ip> -p 2022
 3. **SELinux**: Si está habilitado, debe configurarse para aceptar el nuevo puerto.
 4. **Firewall**: Abre el puerto 2022 en el firewall para permitir conexiones entrantes.
 5. **Reinicio del servicio SSH**: Es necesario para aplicar los cambios en el archivo de configuración.
-
-Con estos pasos, el servidor SSH estará configurado según los requisitos del ejercicio.
 
 ## 6. Ejercicio de ACLs
 
