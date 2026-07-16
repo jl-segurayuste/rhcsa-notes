@@ -9,7 +9,7 @@
 - Gateway: `172.24.40.1`
 - DNS: `172.24.40.1`
 
-Para configurar el nombre de host, la dirección IP, la puerta de enlace y el DNS en un sistema Red Hat basado en la descripción dada, sigue los pasos detallados a continuación.
+Configura el nombre de host, la dirección IP, la puerta de enlace y el DNS en un sistema Red Hat.
 
 ## Pasos para configurar el hostname, IP address, gateway y DNS
 
@@ -120,7 +120,5 @@ ip addr show
 hostnamectl
 ping -c 4 172.24.40.1
 ```
-
-Siguiendo estos pasos, habrás configurado correctamente la dirección IP, puerta de enlace, DNS y nombre de host en tu sistema Red Hat.
 
 > **Nota:** Este ejercicio usa la sintaxis clásica de `/etc/sysconfig/network` e `ifcfg-*` (RHEL 6/7 con `network` service). En RHEL 8/9 (RHCSA actual) la forma recomendada es usar `nmcli` para configurar IP, gateway y DNS, y `hostnamectl set-hostname` para el hostname persistente, ya que NetworkManager gestiona la red por defecto.

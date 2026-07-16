@@ -1,6 +1,6 @@
 # Configurar servidor FTP
 
-Este ejercicio está dirigido a instalar y configurar un servidor FTP (vsftpd) en un sistema Linux para permitir descargas anónimas desde el directorio `/var/ftp/pub`. Vamos a desglosar los pasos y su explicación.
+Instala y configura un servidor FTP (vsftpd) en un sistema Linux para permitir descargas anónimas desde el directorio `/var/ftp/pub`.
 
 ## Pasos y explicación detallada
 

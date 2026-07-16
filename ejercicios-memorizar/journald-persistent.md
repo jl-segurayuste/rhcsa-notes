@@ -1,6 +1,6 @@
 # Journald persistent
 
-El procedimiento que mencionas para hacer que el journal de systemd sea persistente aún después del reinicio se puede realizar con los siguientes cuatro comandos:
+Para hacer que el journal de systemd sea persistente tras el reinicio, ejecuta estos cuatro comandos:
 
 1. **Crear el directorio donde se almacenarán los logs de manera persistente:**
 
@@ -33,5 +33,3 @@ El procedimiento que mencionas para hacer que el journal de systemd sea persiste
    ```
 
    La señal **SIGUSR1** no recarga la configuración de `systemd-journald` (eso sería `systemctl reload systemd-journald` o `SIGHUP`); lo que hace es indicarle que vuelque los datos del journal en memoria/runtime (`/run/log/journal`) al almacenamiento persistente que se acaba de crear en `/var/log/journal`, sin necesidad de reiniciar el servicio.
-
-Estos comandos en secuencia configuran el journal para que almacene los logs de manera persistente en el disco.

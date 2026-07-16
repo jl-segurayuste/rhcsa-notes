@@ -21,5 +21,3 @@ Para verificar el contenido del archivo `/etc/fstab` antes de iniciar el sistema
    ```
 
    `-f` (fake) hace que `mount` recorra todo el proceso de montaje sin llegar a ejecutar la llamada real de montaje, `-a` monta todas las entradas de `/etc/fstab` y `-v` muestra la salida detallada. Es útil para detectar errores de `/etc/fstab` sin llegar a montar nada de verdad.
-
-Ambos comandos son herramientas útiles para asegurarte de que no habrá problemas de montaje al iniciar el sistema.

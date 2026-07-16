@@ -69,7 +69,3 @@ su - ldapuser40
 ```
 
 Esto debería hacer que autofs monte automáticamente `/rhome/ldapuser40` desde `172.24.40.10` al acceder al directorio home de `ldapuser40`.
-
-## Resumen
-
-La configuración de `autofs` permite montar automáticamente directorios NFS cuando los usuarios acceden a ellos, lo que es útil en entornos donde los directorios home están distribuidos en múltiples servidores. Asegúrate de ajustar las direcciones IP y los nombres de directorios según tu configuración específica.

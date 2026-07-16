@@ -222,11 +222,9 @@ Aquí hay un ejemplo práctico de cómo usar `chroot` para cambiar la contraseñ
 - **Seguridad**: Puedes crear entornos aislados para ejecutar programas de manera segura sin afectar al sistema principal.
 - **Pruebas**: Puedes crear entornos de prueba independientes del sistema operativo principal.
 
-Usar `chroot` es una herramienta poderosa para administradores de sistemas, proporcionando un entorno seguro y aislado para diversas tareas administrativas y de recuperación.
-
 # Cómo evitarlo
 
-Como responsable de seguridad, evitar que se utilice el método descrito anteriormente para cambiar la contraseña de root mediante `chroot` y otros procedimientos similares implica implementar varias medidas de seguridad. Aquí hay algunas estrategias que puedes seguir:
+Estrategias para evitar que se use el método anterior (`chroot` y procedimientos similares) para cambiar la contraseña de root sin autorización:
 
 ### 1. Proteger el acceso al GRUB
 
@@ -346,8 +344,6 @@ Como responsable de seguridad, evitar que se utilice el método descrito anterio
    ```bash
    systemctl restart sshd
    ```
-
-Implementando estas medidas de seguridad, puedes reducir significativamente el riesgo de que alguien no autorizado pueda cambiar la contraseña de root y acceder al sistema sin permiso.
 
 ---
 

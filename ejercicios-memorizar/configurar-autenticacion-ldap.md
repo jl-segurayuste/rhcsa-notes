@@ -41,10 +41,6 @@ getent passwd ldapuser40
 
 Este comando debería devolver la información de la cuenta de usuario `ldapuser40` obtenida desde el servidor LDAP si la configuración de autenticación LDAP se ha realizado correctamente.
 
-## Resumen
-
-Este ejercicio te guía a través de la configuración de la autenticación del sistema utilizando LDAP como base de datos de cuentas de usuario. Configurando los parámetros necesarios como el DN base, el servidor LDAP y descargando el certificado CA, aseguras que los usuarios puedan autenticarse con sus credenciales almacenadas en LDAP de manera segura y eficiente en tu entorno Linux.
-
 > **Nota:** El comando `system-config-authentication` no está disponible en todos los sistemas Linux modernos, especialmente en distribuciones recientes como Red Hat Enterprise Linux (RHEL) 8 y versiones más nuevas. Este comando solía ser parte de herramientas gráficas específicas para configurar la autenticación en entornos de escritorio y servidores.
 >
 > Sin embargo, en sistemas más recientes, la configuración de la autenticación y la integración con LDAP generalmente se realiza manualmente a través de la edición de archivos de configuración y la instalación de paquetes necesarios. Aquí te doy un ejemplo de cómo podrías configurar la autenticación LDAP manualmente en un sistema basado en RHEL 8 o similar.
@@ -120,8 +116,6 @@ session     [success=1 default=ignore] pam_succeed_if.so service in crond quiet 
 session     required      pam_unix.so
 ```
 
-Asegúrate de configurar adecuadamente las líneas `auth`, `account`, `password` y `session` según las necesidades de tu entorno.
-
 ### 4. Descargar y configurar el certificado CA
 
 Descarga el certificado CA necesario desde el servidor LDAP y colócalo en un directorio seguro, como `/etc/pki/tls/certs/`.
@@ -142,6 +136,3 @@ getent passwd ldapuser40
 
 Este comando debería mostrar la entrada de usuario para `ldapuser40` recuperada desde el servidor LDAP.
 
-## Resumen
-
-La configuración manual de la autenticación LDAP en sistemas modernos como RHEL 8 se realiza principalmente mediante la edición de archivos de configuración como `sssd.conf` y `system-auth`, en lugar de depender de herramientas gráficas como `system-config-authentication`. Esto proporciona un mayor control y flexibilidad sobre la configuración del sistema de autenticación, adaptándose mejor a entornos corporativos y de servidor.

@@ -78,10 +78,6 @@ Finalmente, prueba que la resolución de nombres funciona correctamente:
 host server1.example.com
 ```
 
-## Resumen
-
-Para asegurar que el nameserver se aplica globalmente en un entorno gestionado por NetworkManager, puedes ajustar la configuración global de NetworkManager o iterar sobre todas las conexiones con un script para aplicar los ajustes de DNS. De esta manera, te aseguras de que los cambios sean persistentes y efectivos para todas las conexiones de red en el sistema.
-
 ## A una interfaz específica
 
 Es mejor utilizar `nmcli` para cambiar el nameserver si tu sistema está gestionado por NetworkManager, ya que de esta manera los cambios se aplicarán de manera persistente y no serán sobrescritos por NetworkManager.
@@ -163,5 +159,3 @@ Supongamos que la conexión se llama `System eth0`. Aquí tienes los comandos co
    ```bash
    host server1.example.com
    ```
-
-Siguiendo estos pasos, te aseguras de que el nameserver se configure de manera persistente y que no se sobrescriba por NetworkManager.

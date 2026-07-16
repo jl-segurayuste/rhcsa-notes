@@ -2,7 +2,7 @@
 
 > Subpágina de [Cambiar la contraseña de root sin saber cual es](cambiar-password-root.md), con el procedimiento específico para Debian 12 (a diferencia del ejercicio principal, orientado a Red Hat/CentOS).
 
-Te voy a guiar paso a paso para cambiar la contraseña de root en **Debian 12** cuando no conoces la contraseña actual. El proceso es ligeramente diferente al de Red Hat/CentOS.
+Cambiar la contraseña de root en **Debian 12** sin conocer la actual sigue un proceso ligeramente diferente al de Red Hat/CentOS.
 
 ## Método 1: Usando GRUB (Recomendado para Debian 12)
 

@@ -116,5 +116,3 @@ Supongamos que el VG se llama `vg2` y el LV se llama `lv2`.
    ```bash
    lvdisplay /dev/vg2/lv2
    ```
-
-Siguiendo estos pasos, podrás ajustar el tamaño de tu LV según las necesidades especificadas en el ejercicio.

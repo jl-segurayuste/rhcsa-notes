@@ -1,6 +1,6 @@
 # Crear usuario con permisos para cambiar contraseña
 
-El shell `/bin/passwd` no es un shell real y no existe en la mayoría de los sistemas Unix o Linux. Parece que hay una confusión o malentendido. Sin embargo, es posible restringir a un usuario para que solo pueda cambiar su contraseña utilizando el comando `passwd` y no pueda iniciar sesión en un shell interactivo normal.
+El shell `/bin/passwd` no es un shell real y no existe en la mayoría de los sistemas Unix o Linux. Sin embargo, es posible restringir a un usuario para que solo pueda cambiar su contraseña utilizando el comando `passwd` y no pueda iniciar sesión en un shell interactivo normal.
 
 Aquí hay algunas formas de restringir el acceso de un usuario:
 
@@ -80,10 +80,6 @@ El resultado será algo como esto:
 /bin/csh
 /bin/false
 ```
-
-## Resumen
-
-El shell `/bin/passwd` no existe como un shell estándar. En lugar de eso, puedes restringir a un usuario para que no pueda iniciar sesión utilizando shells como `/sbin/nologin` o `/bin/false`, o crear un script personalizado que solo permita cambiar la contraseña y configurarlo como el shell del usuario. Esto asegura que el usuario no pueda usar el sistema para nada más que cambiar su propia contraseña.
 
 ## Comprobación
 
@@ -184,5 +180,3 @@ Aquí tienes un ejemplo completo, suponiendo que usamos el script personalizado 
    Changing password for user bob.
    New password:
    ```
-
-Al seguir estos pasos, puedes estar seguro de que la configuración del shell del usuario se ha realizado correctamente y que el usuario está limitado a la funcionalidad especificada.

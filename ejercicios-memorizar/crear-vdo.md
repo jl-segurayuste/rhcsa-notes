@@ -93,8 +93,6 @@ Para agregar un nuevo disco virtual de 10 GiB a tu máquina virtual, crear un vo
 
    Después del reinicio, verifica de nuevo con `df -h` que el volumen está montado en `/mnt/myvdo`.
 
-Siguiendo estos pasos, habrás agregado un nuevo disco virtual, creado un volumen VDO de mayor tamaño y configurado el montaje persistente de dicho volumen.
-
 ## Qué es VDO
 
 ### ¿Qué es un VDO?
@@ -107,71 +105,9 @@ VDO (Virtual Data Optimizer) es una tecnología de Red Hat que se utiliza para o
 2. **Compresión**: reduce el tamaño de los datos mediante algoritmos de compresión.
 3. **Thin Provisioning**: permite crear volúmenes lógicos más grandes que el espacio físico disponible, asignando espacio según sea necesario.
 
-### ¿Qué se está haciendo al realizar este ejercicio?
+### Nota sobre el tamaño lógico
 
-El ejercicio consiste en agregar un nuevo disco virtual a una máquina, crear un volumen VDO en ese disco, y montarlo de manera persistente. A continuación, se explica cada paso y su propósito.
-
-### 1. Agregar un nuevo disco virtual
-
-Se agrega un nuevo disco virtual de 10 GiB a la máquina virtual. Este disco servirá como el almacenamiento físico sobre el cual se creará el volumen VDO.
-
-### 2. Preparar el disco para VDO
-
-- **Identificar el nuevo disco**: se utiliza el comando `lsblk` para listar todos los bloques de dispositivos conectados al sistema y así identificar el nuevo disco.
-- **Crear una partición**: con `parted`, se crea una partición en el nuevo disco. Esto organiza el espacio del disco para que pueda ser utilizado por VDO.
-- **Instalar VDO**: si no está instalado, se instala el paquete `vdo` junto con su módulo del kernel `kmod-kvdo`.
-
-### 3. Crear y configurar el VDO
-
-- **Crear el volumen VDO**: este comando crea un volumen VDO llamado `myvdo` en la partición `/dev/sdb1`. Aunque el disco físico tiene 10 GiB, el tamaño lógico del volumen VDO es 20 GiB, gracias a la deduplicación y compresión.
-
-  ```bash
-  sudo vdo create --name=myvdo --device=/dev/sdb1 --vdoLogicalSize=20G
-  ```
-
-### 4. Formatear el VDO
-
-- **Formatear con XFS**: se formatea el volumen VDO con el sistema de archivos XFS, lo cual prepara el volumen para almacenar datos.
-
-  ```bash
-  sudo mkfs.xfs -K /dev/mapper/myvdo
-  ```
-
-### 5. Montar el VDO de forma persistente
-
-- **Crear el punto de montaje**:
-
-  ```bash
-  sudo mkdir /mnt/myvdo
-  ```
-
-  Se crea un directorio en `/mnt` donde se montará el volumen VDO.
-
-- **Montar el volumen**:
-
-  ```bash
-  sudo mount /dev/mapper/myvdo /mnt/myvdo
-  ```
-
-  Se monta el volumen VDO en el directorio creado.
-
-- **Hacer el montaje persistente**:
-
-  ```bash
-  echo "/dev/mapper/myvdo /mnt/myvdo xfs defaults 0 0" | sudo tee -a /etc/fstab
-  ```
-
-  Se añade una entrada en `/etc/fstab` para que el volumen VDO se monte automáticamente al iniciar el sistema.
-
-### Propósito del ejercicio
-
-Este ejercicio demuestra cómo agregar un nuevo almacenamiento a una máquina virtual, cómo optimizar ese almacenamiento utilizando VDO, y cómo configurar el sistema para que utilice este almacenamiento de manera eficiente y persistente. Los beneficios incluyen:
-
-- **Ahorro de espacio**: al usar deduplicación y compresión, se puede almacenar más datos en menos espacio físico.
-- **Optimización de recursos**: VDO ayuda a gestionar mejor los recursos de almacenamiento disponibles.
-- **Persistencia**: configurar el montaje en `/etc/fstab` asegura que el volumen VDO esté disponible después de cada reinicio del sistema.
-
-Al completar este ejercicio, habrás aprendido a configurar y utilizar VDO, una poderosa herramienta de optimización de almacenamiento en Linux.
+Aunque el disco físico tiene 10 GiB, el tamaño lógico del volumen VDO configurado (`--vdoLogicalSize=20G`) es de 20 GiB gracias a la deduplicación y compresión.
 
 > **Nota RHEL 8 vs RHEL 9:** este ejercicio usa el paquete `vdo` y el comando standalone `vdo create` (válidos en RHEL 8). En **RHEL 9** ese paquete y comando ya no existen — la gestión de VDO se integró en LVM. El equivalente en RHEL 9 es crear el volumen VDO con `lvcreate`, por ejemplo:
 >

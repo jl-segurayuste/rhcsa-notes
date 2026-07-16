@@ -62,5 +62,3 @@ Para verificar que las configuraciones se han aplicado correctamente, puedes cre
    Maximum number of days between password change          : 90
    Number of days of warning before password expires       : 7
    ```
-
-Estos pasos configuran correctamente los valores predeterminados para la validez de la contraseña y el primer UID para nuevos usuarios en un sistema Linux.

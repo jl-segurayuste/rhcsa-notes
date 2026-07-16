@@ -2,7 +2,7 @@
 
 A continuación se muestran 4 modos de realizar el redimensionamiento. La opción **`-r`** es importante porque también redimensiona el sistema de archivos (File System) que tenga en ese momento el volumen lógico.
 
-Vamos a explicar cada comando y luego haremos una comparativa de los cuatro:
+Explicación de cada comando y comparativa de los cuatro:
 
 ### Explicación de cada comando
 
@@ -34,10 +34,3 @@ Vamos a explicar cada comando y luego haremos una comparativa de los cuatro:
 | `lvresize -r -l +75%VG` | Incrementa el tamaño en un 75% del tamaño total del grupo de volúmenes | Sí | Tamaño total del VG |
 | `lvresize -r -l +75%FREE` | Incrementa el tamaño en un 75% del espacio libre del grupo de volúmenes | Sí | Espacio libre del VG |
 | `lvresize -r -l 75%FREE` | Fija el tamaño al 75% del espacio libre del grupo de volúmenes | No | Espacio libre del VG |
-
-### Resumen
-
-- **75%VG** ajusta el tamaño del volumen lógico para que ocupe exactamente el 75% del tamaño total del grupo de volúmenes, sin tener en cuenta el tamaño actual.
-- **+75%VG** incrementa el tamaño del volumen lógico en un 75% del tamaño total del VG, sumándolo al tamaño actual.
-- **+75%FREE** incrementa el tamaño del volumen lógico en un 75% del espacio libre disponible en el VG.
-- **75%FREE** ajusta el tamaño del volumen lógico para que ocupe exactamente el 75% del espacio libre del grupo de volúmenes, sin importar su tamaño actual.

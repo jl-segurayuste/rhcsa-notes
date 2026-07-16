@@ -71,6 +71,4 @@ grep tom /etc/passwd
 4. **`id harry`** y **`id natasha`**: estos comandos muestran la información de los usuarios `harry` y `natasha`, incluyendo los grupos a los que pertenecen.
 5. **`grep tom /etc/passwd`**: este comando muestra la línea correspondiente al usuario `tom` en el archivo `/etc/passwd`, permitiendo verificar su shell de inicio de sesión.
 
-Siguiendo estos pasos y comandos, habrás configurado correctamente los usuarios `harry`, `natasha` y `tom` según los requisitos especificados.
-
 > **Nota:** si el grupo `admin` no existe previamente, hay que crearlo antes con `groupadd admin`, o `useradd -G admin` fallará.

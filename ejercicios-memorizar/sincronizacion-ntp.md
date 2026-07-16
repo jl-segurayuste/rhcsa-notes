@@ -123,6 +123,3 @@ Para configurar la sincronización de tiempo en un sistema usando `timedatectl`,
      chronyc sources -v
      ```
 
-## Resumen
-
-Usando `timedatectl` junto con `chrony`, puedes configurar y verificar la sincronización de tiempo en tu sistema RHEL. `timedatectl` se encarga de habilitar la sincronización de tiempo, mientras que `chrony` se encarga de la configuración detallada de los servidores NTP.

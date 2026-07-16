@@ -109,8 +109,6 @@ yum clean all
 yum makecache
 ```
 
-Siguiendo estos pasos, habrás configurado tu sistema para que use exclusivamente la ISO montada como el único repositorio para instalaciones, sin registrarlo con `subscription-manager` y eliminando cualquier referencia a repositorios externos.
-
 ## Configuración alternativa: repositorio apuntando a BaseOS y AppStream
 
 Si al montar la ISO ves los directorios `AppStream` y `BaseOS` (típicos en las distribuciones de CentOS y RHEL), puedes crear un archivo de repositorio YUM que apunte directamente a estos directorios en lugar de a la raíz de `/repo`.
@@ -170,5 +168,3 @@ Si deseas que la ISO se monte automáticamente en cada reinicio, puedes agregar 
    ```bash
    mount -a
    ```
-
-Siguiendo estos pasos, tu sistema debería poder utilizar el contenido de la ISO como fuente de paquetes YUM.

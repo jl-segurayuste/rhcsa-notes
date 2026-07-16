@@ -2,7 +2,7 @@
 
 > **Enunciado:** You are a System administrator. Using Log files very easy to monitor the system. Now there are 50 servers running as Mail, Web, Proxy, DNS services etc. You want to centralize the logs from all servers into on LOG Server. How will you configure the LOG Server to accept logs from remote host?
 
-Para centralizar los logs de varios servidores en un servidor de logs central, puedes usar `rsyslog`, que es una solución robusta y flexible para la recolección de logs. Aquí te explico cómo configurar un servidor de logs para aceptar registros desde hosts remotos.
+Centraliza los logs de varios servidores en un servidor de logs central con `rsyslog`.
 
 ### Pasos para configurar el servidor de logs
 
@@ -83,5 +83,3 @@ También puedes crear reglas específicas en `rsyslog.conf` para almacenar los l
 ### Configuración avanzada
 
 Para una configuración más avanzada, puedes utilizar `logrotate` para gestionar el tamaño de los archivos de log y `rsyslog` para aplicar filtros y reglas específicas según tus necesidades.
-
-Estas configuraciones proporcionan una solución básica pero efectiva para centralizar los logs de múltiples servidores, lo que facilita el monitoreo y la administración de los registros del sistema.

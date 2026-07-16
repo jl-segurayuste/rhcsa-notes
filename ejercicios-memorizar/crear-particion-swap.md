@@ -116,11 +116,9 @@ Para crear una partición de swap de 2G que se active automáticamente al inicia
    cat /proc/swaps
    ```
 
-Siguiendo estos pasos, habrás creado una nueva partición de swap de 2G que se activará automáticamente al arrancar el sistema, sin afectar la partición de swap original.
-
 ## Ejemplo completo con partición real (`/dev/sdd1`)
 
-Excelente, ahora que has creado el espacio de intercambio (swap) en `/dev/sdd1`, el siguiente paso es configurar el sistema para que lo use automáticamente al iniciar. A continuación, se detallan los pasos restantes.
+Una vez creado el espacio de intercambio (swap) en `/dev/sdd1`, el siguiente paso es configurar el sistema para que lo use automáticamente al iniciar.
 
 ### Paso 1: Copiar el UUID de la nueva partición de swap
 
@@ -172,5 +170,3 @@ swapon /dev/sdd1
    ```
 
    Esto debería mostrar que `/dev/sdd1` está activa como swap.
-
-Siguiendo estos pasos, habrás configurado correctamente tu partición de swap de 2G para que se active automáticamente al arrancar el sistema.

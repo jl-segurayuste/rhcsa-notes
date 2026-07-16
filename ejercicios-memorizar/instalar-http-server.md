@@ -70,7 +70,3 @@ ServerName station.domain40.example.com
 - `<VirtualHost 192.168.0.254:80>`: Inicia la definición del virtual host.
 - `DocumentRoot /var/www/html/`: Especifica el directorio raíz de documentos para este virtual host.
 - `ServerName station.domain40.example.com`: Asigna el nombre del servidor que se utilizará para acceder a este virtual host.
-
-## Resumen
-
-Este ejercicio te guía a través de la instalación y configuración básica de Apache HTTP Server en un servidor Linux. Configura un virtual host para que el servidor web pueda ser accedido a través de `http://station.domain40.example.com` y sirva una página web específica (`example.html`) descargada desde una URL externa.

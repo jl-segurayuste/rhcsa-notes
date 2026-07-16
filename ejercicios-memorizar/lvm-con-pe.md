@@ -16,7 +16,6 @@ sudo vgcreate -s 8M myvg /dev/sdx
 
 ### Explicación de los parámetros
 
-- `sudo`: ejecuta el comando con privilegios de superusuario.
 - `vgcreate`: comando para crear un nuevo grupo de volúmenes.
 - `-s 8M`: especifica el tamaño de los extents físicos (PE size) en 8 MiB. Los extents son las unidades mínimas de asignación en LVM.
 - `myvg`: nombre que le damos al nuevo grupo de volúmenes.
@@ -32,7 +31,6 @@ sudo lvcreate -L 500M -n mydata myvg
 
 ### Explicación de los parámetros
 
-- `sudo`: ejecuta el comando con privilegios de superusuario.
 - `lvcreate`: comando para crear un nuevo volumen lógico.
 - `-L 500M`: especifica el tamaño del volumen lógico en 500 MiB.
 - `-n mydata`: nombre del nuevo volumen lógico (`mydata` en este caso).
@@ -48,7 +46,6 @@ sudo mkfs.ext4 /dev/myvg/mydata
 
 ### Explicación
 
-- `sudo`: ejecuta el comando con privilegios de superusuario.
 - `mkfs.ext4`: formatea el volumen lógico como un sistema de archivos ext4.
 - `/dev/myvg/mydata`: ruta al dispositivo del volumen lógico creado anteriormente.
 
@@ -62,7 +59,6 @@ sudo mkdir /mydata
 
 ### Explicación
 
-- `sudo`: ejecuta el comando con privilegios de superusuario.
 - `mkdir /mydata`: crea el directorio `/mydata` donde se montará el volumen lógico.
 
 ## 5. Montar el Volumen Lógico Persistentemente
@@ -94,9 +90,4 @@ sudo mount -a
 
 ### Explicación
 
-- `sudo`: ejecuta el comando con privilegios de superusuario.
 - `mount -a`: monta todos los sistemas de archivos definidos en `/etc/fstab`, incluyendo `/mydata`.
-
-## Resumen
-
-Este proceso configura un nuevo grupo de volúmenes con extents físicos de 8 MiB, crea un volumen lógico de 500 MiB dentro de ese grupo, lo formatea como ext4, crea un punto de montaje en `/mydata` y lo monta persistente al reiniciar el sistema modificando el archivo `/etc/fstab`. Asegúrate de reemplazar `/dev/sdx` y otros nombres específicos con los valores adecuados para tu configuración real.
