@@ -1,59 +1,71 @@
 # Diagnostique y aborde los incumplimientos rutinarios de las políticas de SELinux
 
-Cuando SELinux detecta y registra un incumplimiento de política, puedes diagnosticar y abordar el problema siguiendo estos pasos:
+> En el EX200 de RHEL 10 este objetivo ya no aparece como tal, pero es la forma de resolver cualquier tarea
+> que SELinux bloquee (un servicio que no arranca en un puerto, una web que da 403…). Al terminar el examen
+> SELinux tiene que estar en **enforcing**.
 
-## 1. Verifica los Registros de SELinux
-
-Revisa los registros de SELinux en busca de mensajes de incumplimiento. Los registros suelen estar en `/var/log/audit/audit.log` o `/var/log/messages`. Utiliza herramientas como `grep` para buscar mensajes relacionados con SELinux:
-
-```shell
-grep AVC /var/log/audit/audit.log
-```
-
-## 2. Utiliza `ausearch` para Investigar
-
-La herramienta `ausearch` te permite buscar eventos de auditoría y puede ayudarte a comprender mejor los incumplimientos de SELinux. Puedes filtrar los resultados para encontrar mensajes específicos:
+## 1. Confirmar que es SELinux
 
 ```shell
-ausearch -m avc -ts today
+getenforce                                   # Enforcing
+sudo ausearch -m AVC -ts recent              # denegaciones de los últimos minutos
+sudo grep AVC /var/log/audit/audit.log | tail
 ```
 
-## 3. Instala y Utiliza `setroubleshoot`
+Si no hay AVC, el problema no es SELinux (permisos, cortafuegos, configuración del servicio). Una prueba
+rápida: `setenforce 0` (pasa a **permissive**, no lo desactiva), repetir la acción y volver con
+`setenforce 1`. Si en permissive funciona, es SELinux.
 
-El paquete `setroubleshoot` proporciona herramientas adicionales para diagnosticar problemas de SELinux. Instálalo y utiliza el comando `sealert` para obtener informes detallados sobre incumplimientos de políticas:
+## 2. Leer la explicación
 
 ```shell
-sudo yum install setroubleshoot
-sudo sealert -a /var/log/audit/audit.log
+sudo dnf install -y setroubleshoot-server     # trae sealert
+sudo sealert -a /var/log/audit/audit.log      # explica cada denegación y propone la solución
 ```
 
-## 4. Ajusta Booleanos de SELinux
+`sealert` suele decir directamente cuál de los casos siguientes es y qué orden ejecutar.
 
-En algunos casos, ajustar los booleanos de SELinux puede solucionar problemas. Verifica si hay booleanos relacionados con el problema y ajústalos según sea necesario. Usa comandos como `getsebool` y `setsebool`.
+## 3. Arreglarlo, en este orden
 
-## 5. Crea y Aplica Módulos de Política
+1. **Contexto de fichero incorrecto** (lo más habitual: ficheros movidos con `mv`, directorios nuevos
+   fuera de las rutas estándar):
 
-Si el incumplimiento es legítimo y necesitas permitir la acción, puedes crear un módulo de política personalizado. Utiliza `audit2allow` para generar un módulo basado en los registros de auditoría:
+   ```shell
+   ls -Zd /web                                                # tipo actual
+   sudo semanage fcontext -a -t httpd_sys_content_t '/web(/.*)?'
+   sudo restorecon -Rv /web
+   ```
 
-```shell
-grep AVC /var/log/audit/audit.log | audit2allow -M mypolicy
-sudo semodule -i mypolicy.pp
-```
+   Si la ruta es una de las estándar (`/var/www/html`…) basta con `restorecon -Rv`.
 
-## 6. Reporta y Soluciona Problemas
+2. **Puerto no estándar:**
 
-Si encuentras incumplimientos recurrentes, es posible que haya un problema de política subyacente. Puedes informar sobre problemas y buscar soluciones en la comunidad de SELinux o en los recursos de soporte de Red Hat.
+   ```shell
+   sudo semanage port -l | grep http_port_t
+   sudo semanage port -a -t http_port_t -p tcp 82      # -m si el puerto ya está definido
+   ```
 
-## 7. Desactiva SELinux Temporalmente (Opcional)
+3. **Booleano** (comportamientos que la política permite activar):
 
-En situaciones críticas, puedes desactivar SELinux temporalmente para evitar bloqueos. Esto no es una solución permanente, pero puede ser útil para propósitos de diagnóstico:
+   ```shell
+   getsebool -a | grep httpd
+   sudo setsebool -P httpd_enable_homedirs on          # -P: persistente
+   ```
 
-```shell
-sudo setenforce 0
-```
+4. **Último recurso: un módulo de política propio**, solo con las denegaciones de ese servicio:
 
-## Notas Adicionales
+   ```shell
+   sudo ausearch -m AVC -c httpd --raw | audit2allow -M mi_httpd
+   cat mi_httpd.te                                     # revisar qué se va a permitir
+   sudo semodule -i mi_httpd.pp
+   ```
 
-- La mayoría de las acciones permitidas o denegadas por SELinux se registran en los registros de auditoría.
-- La herramienta `seinfo` puede proporcionar información útil sobre contextos de seguridad y políticas.
-- Evita desactivar SELinux permanentemente a menos que sea absolutamente necesario.
+   Pasar todo `audit.log` a `audit2allow` crearía un módulo que permite cualquier cosa que se haya
+   denegado alguna vez, también lo que estaba bien bloqueado.
+
+## 4. No dejarlo desactivado
+
+- `setenforce 0` solo sirve para diagnosticar: vuelve a `setenforce 1`.
+- `SELINUX=disabled` en `/etc/selinux/config` apaga SELinux en el siguiente arranque y, al volver a
+  activarlo, hay que reetiquetar todo (`touch /.autorelabel` y reiniciar). En el examen, nunca.
+- `seinfo` y `sesearch` (paquete `setools-console`) sirven para consultar la política.
