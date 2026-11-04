@@ -185,7 +185,7 @@ skopeo list-tags docker://nombre_registro/nombre_imagen
 
 Diseñar un contenedor implica crear un archivo de definición del contenedor, típicamente conocido como Dockerfile (o Containerfile en el ecosistema Podman). Este archivo especifica cómo se construirá la imagen del contenedor y qué configuraciones y comandos deben ejecutarse dentro del contenedor.
 
-### Ejemplo de Dockerfile
+### Ejemplo de Containerfile
 
 ```dockerfile
 # Usa una imagen base (puedes elegir según tus necesidades)
@@ -218,40 +218,40 @@ CMD ["comando", "argumento"]
 # Puedes agregar más comandos o configuraciones según tus necesidades
 
 # Ejemplo de cómo construir y ejecutar la imagen:
-#   docker build -t nombre_imagen:etiqueta_contenedor .
-#   docker run -it nombre_imagen:etiqueta_contenedor
+#   podman build -t nombre_imagen:etiqueta_contenedor .
+#   podman run -it nombre_imagen:etiqueta_contenedor
 ```
 
-### Pasos para Utilizar el Dockerfile
+### Pasos para utilizar el Containerfile
 
-1. **Crea un archivo Dockerfile:** crea un archivo llamado `Dockerfile` en tu directorio de trabajo y agrega el contenido del ejemplo.
+1. **Crea el archivo:** llamado `Containerfile` (o `Dockerfile`, que podman también reconoce) en tu directorio de trabajo, con el contenido del ejemplo.
 
 2. **Construye la imagen:** ejecuta el siguiente comando para construir la imagen del contenedor:
 
 ```bash
-docker build -t nombre_imagen:etiqueta_contenedor .
+podman build -t nombre_imagen:etiqueta_contenedor .
 ```
 
 3. **Ejecuta el contenedor:** después de construir la imagen, puedes ejecutar un contenedor a partir de ella:
 
 ```bash
-docker run -it nombre_imagen:etiqueta_contenedor
+podman run -it nombre_imagen:etiqueta_contenedor
 ```
 
-Dockerfile utiliza una sintaxis específica, así que ten cuidado con la indentación y el formato.
+El Containerfile tiene la misma sintaxis que un Dockerfile.
 
-> **Nota:** Podman también es una alternativa a Docker y puede utilizarse de manera similar. Los comandos pueden variar ligeramente, pero el enfoque general es el mismo.
+> **Nota:** en RHEL no se instala Docker: se usa podman, con las mismas órdenes (`podman build`, `podman run`…) y sin demonio ni root.
 
 ## Realice una gestión básica de los contenedores, como ejecutar, iniciar, detener y registrar aquellos que se encuentran en funcionamiento
 
-Ejecuta, inicia, detén y revisa el registro de contenedores con estos comandos básicos de Docker.
+Ejecuta, inicia, detén y revisa el registro de contenedores con estos comandos básicos de podman.
 
-### Operaciones Básicas con Docker
+### Operaciones básicas con podman
 
 1. **Ejecutar un contenedor:**
 
 ```bash
-docker run -it --name mi_contenedor nombre_imagen:etiqueta_contenedor
+podman run -it --name mi_contenedor nombre_imagen:etiqueta_contenedor
 ```
 
 Este comando ejecuta un contenedor en modo interactivo y le asigna un nombre.
@@ -259,7 +259,7 @@ Este comando ejecuta un contenedor en modo interactivo y le asigna un nombre.
 2. **Listar contenedores en ejecución:**
 
 ```bash
-docker ps
+podman ps
 ```
 
 Muestra una lista de contenedores en ejecución.
@@ -267,7 +267,7 @@ Muestra una lista de contenedores en ejecución.
 3. **Detener un contenedor en ejecución:**
 
 ```bash
-docker stop mi_contenedor
+podman stop mi_contenedor
 ```
 
 Detiene un contenedor que está en ejecución.
@@ -275,7 +275,7 @@ Detiene un contenedor que está en ejecución.
 4. **Iniciar un contenedor detenido:**
 
 ```bash
-docker start mi_contenedor
+podman start mi_contenedor
 ```
 
 Inicia un contenedor que ha sido detenido previamente.
@@ -283,7 +283,7 @@ Inicia un contenedor que ha sido detenido previamente.
 5. **Ver el registro de un contenedor:**
 
 ```bash
-docker logs mi_contenedor
+podman logs mi_contenedor
 ```
 
 Muestra el registro de salida del contenedor.
@@ -291,42 +291,42 @@ Muestra el registro de salida del contenedor.
 6. **Eliminar un contenedor detenido:**
 
 ```bash
-docker rm mi_contenedor
+podman rm mi_contenedor
 ```
 
 Elimina un contenedor que ha sido detenido.
 
 ### Notas Adicionales
 
-- Puedes utilizar la opción `-d` con `docker run` para ejecutar el contenedor en segundo plano.
+- Puedes utilizar la opción `-d` con `podman run` para ejecutar el contenedor en segundo plano.
 - Para ejecutar un comando específico dentro de un contenedor en ejecución, utiliza:
 
 ```bash
-docker exec -it mi_contenedor comando
+podman exec -it mi_contenedor comando
 ```
 
-- Al listar contenedores con `docker ps`, la opción `-a` muestra todos los contenedores, incluidos los detenidos.
+- Al listar contenedores con `podman ps`, la opción `-a` muestra todos los contenedores, incluidos los detenidos.
 
-Estos comandos son para Docker, pero con Podman como alternativa suelen ser muy similares.
+Son las mismas órdenes que en Docker (`podman` es compatible en la línea de comandos).
 
 ## Ejecute un servicio dentro de un contenedor
 
 Para ejecutar un servicio dentro de un contenedor, utiliza el comando que inicia el servicio deseado en el contenedor.
 
-### Ejemplo de Ejecución de un Servicio en Docker
+### Ejemplo de ejecución de un servicio con podman
 
 Supongamos que deseas ejecutar un servidor web Nginx dentro de un contenedor:
 
 1. **Descargar la imagen de Nginx:**
 
 ```bash
-docker pull nginx
+podman pull nginx
 ```
 
 2. **Ejecutar un contenedor con el servicio Nginx:**
 
 ```bash
-docker run -d --name mi_servicio_nginx -p 8080:80 nginx
+podman run -d --name mi_servicio_nginx -p 8080:80 nginx
 ```
 
 - `-d`: ejecuta el contenedor en segundo plano (modo daemon).
@@ -336,7 +336,7 @@ docker run -d --name mi_servicio_nginx -p 8080:80 nginx
 3. **Verificar que el servicio está en ejecución:**
 
 ```bash
-docker ps
+podman ps
 ```
 
 Asegúrate de que el contenedor esté en ejecución.
@@ -349,87 +349,55 @@ Asegúrate de que el contenedor esté en ejecución.
 - Para detener el servicio, utiliza:
 
 ```bash
-docker stop mi_servicio_nginx
+podman stop mi_servicio_nginx
 ```
 
 - Para eliminar el contenedor después de detener el servicio, utiliza:
 
 ```bash
-docker rm mi_servicio_nginx
+podman rm mi_servicio_nginx
 ```
 
 Este ejemplo utiliza Nginx, pero el procedimiento es similar para otros servicios.
 
 ## Configure un contenedor para que inicie automáticamente como un servicio systemd
 
-Para que un contenedor se inicie automáticamente como un servicio systemd, crea un archivo de unidad systemd.
-
-### Paso 1: Crear un Archivo de Unidad systemd (`mi_contenedor.service`)
-
-Crea un archivo de unidad systemd, por ejemplo, `mi_contenedor.service`. Puedes usar un editor de texto como `nano` o `vim` para crear el archivo.
-
-```ini
-# mi_contenedor.service
-[Unit]
-Description=Servicio Mi Contenedor
-
-[Service]
-Restart=always
-ExecStart=/usr/bin/docker start -a mi_contenedor
-ExecStop=/usr/bin/docker stop -t 2 mi_contenedor
-
-[Install]
-WantedBy=default.target
-```
-
-Este archivo de unidad especifica que el contenedor denominado `mi_contenedor` debería iniciarse automáticamente como un servicio systemd. Ajusta los comandos `ExecStart` y `ExecStop` según tus necesidades.
-
-### Paso 2: Colocar el Archivo de Unidad en el Directorio de Systemd
-
-Coloca el archivo `mi_contenedor.service` en el directorio `/etc/systemd/system/`.
+En RHEL no se escribe la unidad a mano ni se usa Docker: podman la genera. Procedimiento completo (usuario
+sin privilegios, *lingering*, SELinux) en
+[`crear-contenedor-http-servicio-sistema.md`](../ejercicios-memorizar/crear-contenedor-http-servicio-sistema.md).
 
 ```bash
-sudo cp mi_contenedor.service /etc/systemd/system/
+# Como el usuario dueño del contenedor (sesión real: ssh o machinectl shell)
+podman run -d --name mi_contenedor -p 8080:80 nombre_imagen
+mkdir -p ~/.config/systemd/user && cd ~/.config/systemd/user
+podman generate systemd --new --files --name mi_contenedor
+podman rm -f mi_contenedor                 # con --new el servicio crea el suyo
+systemctl --user daemon-reload
+systemctl --user enable --now container-mi_contenedor.service
+sudo loginctl enable-linger "$USER"        # que arranque sin iniciar sesión
 ```
 
-### Paso 3: Recargar la Configuración de systemd
-
-Recarga la configuración de systemd para que reconozca el nuevo archivo de unidad.
-
-```bash
-sudo systemctl daemon-reload
-```
-
-### Paso 4: Habilitar y Iniciar el Servicio
-
-Habilita el servicio para que se inicie automáticamente al arrancar y luego inicia el servicio.
-
-```bash
-sudo systemctl enable mi_contenedor.service
-sudo systemctl start mi_contenedor.service
-```
-
-### Notas Adicionales
-
-- El ejemplo utiliza `Restart=always` para reiniciar automáticamente el servicio si se detiene inesperadamente.
-- Puedes revisar el registro del servicio con `journalctl -u mi_contenedor.service`.
-- Para detener y deshabilitar el servicio, utiliza:
-
-```bash
-sudo systemctl stop mi_contenedor.service
-sudo systemctl disable mi_contenedor.service
-```
+En podman 4.4+ (RHEL 9.3+ y RHEL 10) lo recomendado es Quadlet: un fichero
+`~/.config/containers/systemd/mi_contenedor.container` con `[Container]` (`Image=`, `PublishPort=`,
+`Volume=`) e `[Install] WantedBy=default.target`, y `systemctl --user daemon-reload`.
 
 ## Asigne un almacenamiento permanente a un contenedor
 
 Cuando se trabaja con contenedores, el almacenamiento puede ser efímero o persistente. El almacenamiento efímero se pierde cuando el contenedor se detiene o se elimina, mientras que el almacenamiento persistente se mantiene incluso después de que el contenedor se detiene o se elimina.
 
-A continuación se presenta una forma de asignar almacenamiento persistente a un contenedor usando Docker como ejemplo, mediante volúmenes:
+Dos formas de dar almacenamiento persistente: un volumen gestionado por podman o un directorio del host. Con un directorio del host, en RHEL hace falta `:Z` para que SELinux deje al contenedor usarlo:
+
+```bash
+mkdir -p ~/datos
+podman run -d --name mi_contenedor -v ~/datos:/ruta/en/el/contenedor:Z mi_imagen
+```
+
+Con un volumen gestionado:
 
 1. **Crea un volumen:**
 
 ```bash
-docker volume create mi_volumen
+podman volume create mi_volumen
 ```
 
 Esto creará un volumen llamado `mi_volumen`.
@@ -437,7 +405,7 @@ Esto creará un volumen llamado `mi_volumen`.
 2. **Ejecuta un contenedor asociado con el volumen:**
 
 ```bash
-docker run -d --name mi_contenedor -v mi_volumen:/ruta/en/el/contenedor mi_imagen
+podman run -d --name mi_contenedor -v mi_volumen:/ruta/en/el/contenedor mi_imagen
 ```
 
 Esto ejecutará un contenedor llamado `mi_contenedor` asociado con el volumen `mi_volumen`. El directorio `/ruta/en/el/contenedor` dentro del contenedor estará vinculado al volumen.
@@ -447,7 +415,7 @@ Esto ejecutará un contenedor llamado `mi_contenedor` asociado con el volumen `m
 Puedes copiar datos al volumen o crear nuevos archivos dentro del contenedor, y estos se almacenarán en el volumen asociado.
 
 ```bash
-docker exec -it mi_contenedor bash
+podman exec -it mi_contenedor bash
 # Dentro del contenedor
 echo "Datos importantes" > /ruta/en/el/contenedor/datos.txt
 exit
@@ -458,8 +426,8 @@ exit
 Puedes detener y reiniciar el contenedor, pero los datos en el volumen persistirán.
 
 ```bash
-docker stop mi_contenedor
-docker start mi_contenedor
+podman stop mi_contenedor
+podman start mi_contenedor
 ```
 
 Incluso después de detener y reiniciar el contenedor, los datos en el volumen `mi_volumen` seguirán estando disponibles.
