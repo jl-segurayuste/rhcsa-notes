@@ -576,6 +576,8 @@ sudo dnf install -y nfs-utils
 /users/anna *(rw,sync,no_root_squash)
 ```
 
+> `no_root_squash` hace que root en el cliente sea root también en el servidor: úsalo solo si el enunciado lo pide. Por defecto (`root_squash`) root del cliente se convierte en `nobody`.
+
 5. **Habilitar y reiniciar el servicio NFS**:
 
 ```bash

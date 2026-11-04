@@ -251,7 +251,7 @@ Esto también se define en el archivo `/etc/login.defs`:
 
 ### Notas adicionales
 
-- Si deseas que estas configuraciones se apliquen automáticamente al usar herramientas como `adduser`, verifica y ajusta el archivo `/etc/adduser.conf` (si está presente en tu distribución).
+- En RHEL `adduser` es solo un enlace a `useradd`: los valores por defecto salen de `/etc/login.defs` y `/etc/default/useradd` (`useradd -D` los muestra). `/etc/adduser.conf` es de Debian.
 - Para usuarios ya existentes, tendrás que ajustar la validez de la contraseña manualmente usando el comando `chage`:
 
   ```bash
@@ -293,8 +293,8 @@ Este ejercicio implica la activación de GUID 2000.
 2. Asignación de permisos:
 
    ```bash
-   chown .operations /groups/operations && \
-   chown .livingopensource /groups/livingopensource && \
+   chown :operations /groups/operations && \
+   chown :livingopensource /groups/livingopensource && \
    chmod 2770 /groups/operations && \
    chmod 2770 /groups/livingopensource
    ```
@@ -501,7 +501,7 @@ df -h /stratis
 mount | grep stratis
 
 # Probar escritura
-sudo echo "Test Stratis filesystem" > /stratis/test.txt
+echo "Test Stratis filesystem" | sudo tee /stratis/test.txt   # sudo echo … > no funciona: la redirección la hace tu shell, sin sudo
 cat /stratis/test.txt
 
 # Verificar /etc/fstab
@@ -929,10 +929,10 @@ echo -n "Restricted shell> "
 **5. Leer el comando del usuario**
 
 ```bash
-read -r cmd
+read -r cmd || exit 0
 ```
 
-- Este comando espera que el usuario escriba algo y lo almacena en la variable `cmd`.
+- Este comando espera que el usuario escriba algo y lo almacena en la variable `cmd`. Si la entrada se acaba (Ctrl+D), `read` falla y `|| exit 0` cierra la sesión; sin él, el bucle se repetiría sin fin.
 - La opción `-r` evita que Bash interprete caracteres de escape (`\`) en la entrada del usuario, garantizando que se lea exactamente lo que el usuario escribe.
 
 Por ejemplo: si el usuario escribe `passwd`, el valor de `cmd` será exactamente `passwd`.
@@ -1188,6 +1188,8 @@ echo "/users *(rw,sync,no_root_squash,no_all_squash)" | sudo tee -a /etc/exports
 # Verificar contenido
 cat /etc/exports
 ```
+
+> `no_root_squash` hace que root en el cliente sea root también en el servidor: úsalo solo si el enunciado lo pide. Por defecto (`root_squash`) root del cliente se convierte en `nobody`.
 
 **5. Configurar permisos del directorio:**
 

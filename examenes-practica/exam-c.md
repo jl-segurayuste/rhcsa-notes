@@ -168,7 +168,7 @@ Modificar el archivo `/etc/login.defs` con los parámetros correspondientes es u
 ### Análisis de la configuración
 
 1. **`PASS_MIN_DAYS 3`**: Esto establece que los usuarios deben esperar al menos 3 días antes de cambiar su contraseña nuevamente. Este parámetro es adecuado y cumple con el requisito.
-2. **`PASS_MIN_LEN 6`**: Aunque este parámetro está presente en `/etc/login.defs`, no siempre se aplica directamente. En sistemas modernos, el requisito de longitud mínima de contraseña suele ser gestionado por el módulo `pam_pwquality.so` en PAM.
+2. **`PASS_MIN_LEN 6`**: en RHEL 8 y 9 este parámetro de `/etc/login.defs` **no se aplica**: la longitud mínima la decide `pam_pwquality` (`minlen` en `/etc/security/pwquality.conf`, que tampoco admite menos de 6).
 
 ### Pasos adicionales para asegurar la configuración
 

@@ -85,7 +85,7 @@ df -h /stratis
 mount | grep stratis
 
 # Probar escritura
-sudo echo "Test Stratis filesystem" > /stratis/test.txt
+echo "Test Stratis filesystem" | sudo tee /stratis/test.txt   # sudo echo … > no funciona: la redirección la hace tu shell, sin sudo
 cat /stratis/test.txt
 
 # Verificar /etc/fstab
