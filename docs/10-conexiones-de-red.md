@@ -177,8 +177,11 @@ Reemplaza `"Nombre de la Conexión"` con el nombre de la conexión que deseas co
 3. **Configurar una dirección IPv4 estática:**
 
 ```bash
-sudo nmcli con mod "Nombre de la Conexión" ipv4.addresses "Dirección IP/Longitud de Prefijo"
+sudo nmcli con mod "Nombre de la Conexión" ipv4.addresses "Dirección IP/Longitud de Prefijo" ipv4.method manual
 ```
+
+**Imprescindible `ipv4.method manual`** para una IP fija: con el método en `auto` (DHCP) la dirección se
+añade, pero la conexión sigue pidiendo IP por DHCP. Lo mismo en IPv6 con `ipv6.method manual`.
 
 Reemplaza `"Dirección IP/Longitud de Prefijo"` con la dirección IPv4 y la longitud de prefijo que deseas asignar, por ejemplo, `192.168.1.2/24`.
 
@@ -248,7 +251,7 @@ Este comando modifica la configuración de la conexión llamada "static" para qu
 nmcli con mod static ipv4.dns 10.0.0.10
 ```
 
-Este comando agrega el servidor DNS `10.0.0.10` a la configuración de la conexión "static". Nota que al agregar la conexión se utiliza `ip4`, pero al modificar parámetros existentes se usa `ipv4`.
+Este comando fija `10.0.0.10` como servidor DNS de la conexión "static" (sustituye los que hubiera; para añadir sin borrar, `+ipv4.dns`). Nota que al agregar la conexión se utiliza `ip4`, pero al modificar parámetros existentes se usa `ipv4`.
 
 3. **Añadir un segundo servidor DNS:**
 
@@ -287,7 +290,7 @@ Este comando activa la conexión "static" con las nuevas configuraciones que se 
 | Comando | Descripción |
 |---|---|
 | `nmcli con mod static connection.autoconnect no` | Desactiva la conexión automática de la conexión "static". |
-| `nmcli con mod static ipv4.dns 10.0.0.10` | Agrega un servidor DNS (`10.0.0.10`) a la conexión "static". |
+| `nmcli con mod static ipv4.dns 10.0.0.10` | **Sustituye** la lista de DNS de la conexión "static" por `10.0.0.10`. |
 | `nmcli con mod static +ipv4.dns 8.8.8.8` | Agrega un segundo servidor DNS (`8.8.8.8`) a la conexión "static". |
 | `nmcli con mod static ipv4.addresses 10.0.0.100/24` | Cambia la dirección IP de la conexión "static" a `10.0.0.100/24`. |
 | `nmcli con mod static +ipv4.addresses 10.20.30.40/16` | Agrega una segunda dirección IP (`10.20.30.40/16`) a la conexión "static". |
@@ -390,46 +393,33 @@ Reemplaza `"Nombre de la Conexión"` con el nombre de la conexión que estás co
 
 ## Configure los servicios de red para que se inicien automáticamente al arrancar
 
-**Configurar interfaces de red para iniciar automáticamente:**
-
-1. **Identificar las interfaces de red:**
-
-Puedes listar las interfaces de red disponibles con el siguiente comando:
+**Conexiones de red** (RHEL 8+, NetworkManager): que se activen solas al arrancar es la propiedad
+`connection.autoconnect` de la conexión:
 
 ```bash
-ip link show
+nmcli -f NAME,DEVICE,AUTOCONNECT con show
+sudo nmcli con mod "Nombre de la Conexión" connection.autoconnect yes
 ```
 
-Identifica las interfaces que deseas configurar para que se inicien automáticamente.
-
-2. **Acceder a la configuración de la interfaz:**
-
-Abre el archivo de configuración de la interfaz que deseas editar. Por ejemplo, para una interfaz llamada `enp0s3`:
+**Servicios de red** (sshd, httpd, chronyd…): con systemd.
 
 ```bash
-sudo nano /etc/sysconfig/network-scripts/ifcfg-enp0s3
+sudo systemctl enable --now sshd
+systemctl is-enabled sshd
 ```
 
-3. **Ajustar la configuración:**
-
-Asegúrate de que el archivo de configuración contenga la siguiente línea para configurar la interfaz para que se inicie automáticamente al arrancar:
-
-```
-ONBOOT=yes
-```
-
-Puedes agregar esta línea si no está presente o cambiar `no` a `yes` si ya está presente.
-
-4. **Guardar y cerrar el archivo.**
-
-5. **Reiniciar el servicio de red (opcional):**
-
-Puedes reiniciar el servicio de red para aplicar los cambios:
-
-```bash
-sudo systemctl restart network
-```
-
-> **Nota:** la ubicación del script y el nombre de la interfaz dependen de la versión del sistema operativo.
+> **RHEL 7 y anteriores:** se hacía con `ONBOOT=yes` en `/etc/sysconfig/network-scripts/ifcfg-<interfaz>` y
+> `systemctl restart network`. En RHEL 8 el servicio `network` está obsoleto y en RHEL 9 ya no existe; los
+> perfiles nuevos se guardan como *keyfiles* en `/etc/NetworkManager/system-connections/`.
 
 En RHEL 8 y versiones más recientes, la configuración de red ha transicionado hacia `nmcli` y NetworkManager. Con NetworkManager, también puedes configurar interfaces mediante la interfaz gráfica [`nmtui`](https://access.redhat.com/documentation/es-es/red_hat_enterprise_linux/8/html/configuring_basic_system_settings/adding-a-connection-profile-using-nmtui_configuring-and-managing-network-access) o mediante comandos `nmcli`.
+
+## Nombre de host
+
+```bash
+sudo hostnamectl set-hostname servidor1.example.com   # persistente (escribe /etc/hostname)
+hostnamectl                                           # comprobar
+```
+
+Para que el nombre se resuelva localmente, una línea en `/etc/hosts` (ver arriba).
+
