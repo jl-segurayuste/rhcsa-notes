@@ -1,6 +1,10 @@
 # Implementación, configuración y mantenimiento de los sistemas
 
-## Programe tareas con at y cron
+## Programe tareas con at, cron y temporizadores de systemd
+
+> En el EX200 de RHEL 10 este objetivo incluye los **temporizadores de systemd** (`.timer`): ver
+> [`system-timers.md`](../teoria-memorizar/system-timers.md) (unidad `.timer` + `.service`, `OnCalendar=`,
+> `systemctl enable --now nombre.timer`, `systemctl list-timers`).
 
 El archivo `/etc/anacrontab` se utiliza en sistemas Linux para definir y programar tareas que deben ejecutarse periódicamente, similar a Cron, pero con algunas diferencias clave. A diferencia de Cron, Anacron garantiza la ejecución de tareas incluso si el sistema no está encendido en el momento exacto programado. Esto es útil en sistemas que no están en funcionamiento continuo (por ejemplo, laptops).
 
@@ -201,48 +205,22 @@ sudo systemctl status nginx
 
 ## Configure los sistemas para que se inicien automáticamente en un destino específico
 
-Configura servicios para que se inicien automáticamente en un destino específico con `systemctl`:
-
-### Configurar un Servicio para Iniciar Automáticamente en un Destino Específico
-
-#### 1. Identificar el Nombre del Servicio
-
-Antes de configurar un servicio para iniciar automáticamente en un destino específico, necesitas conocer el nombre del servicio. Puedes usar el siguiente comando para listar los servicios y encontrar el que te interesa:
+El objetivo es elegir el *target* con el que arranca el sistema (modo texto o gráfico), no qué servicios
+arrancan. Se hace con el *default target*:
 
 ```bash
-sudo systemctl list-units --type=service
+systemctl get-default                          # el actual, p. ej. graphical.target
+sudo systemctl set-default multi-user.target   # arrancar siempre en modo texto
+sudo systemctl set-default graphical.target    # o en modo gráfico
 ```
 
-#### 2. Configurar el Servicio para Iniciar en un Destino Específico
+`set-default` cambia el enlace `/etc/systemd/system/default.target` y solo tiene efecto en el siguiente
+arranque. Para cambiar ya, sin reiniciar: `sudo systemctl isolate multi-user.target`. Ver también los
+*targets* en el [capítulo 3](03-sistemas-en-funcionamiento.md).
 
-Utiliza el siguiente comando para configurar un servicio para que se inicie automáticamente en un destino específico. Reemplaza `nombre_del_servicio` con el nombre del servicio y `nombre_del_destino` con el nombre del destino.
-
-```bash
-sudo systemctl enable --now nombre_del_servicio.service
-```
-
-- `--enable`: Configura el servicio para iniciar automáticamente.
-- `--now`: Inicia el servicio inmediatamente.
-
-#### 3. Verificar el Estado del Servicio
-
-Puedes verificar el estado del servicio y asegurarte de que esté ejecutándose correctamente:
-
-```bash
-sudo systemctl status nombre_del_servicio
-```
-
-Reemplaza `nombre_del_servicio` con el nombre del servicio que configuraste.
-
-### Ejemplo Práctico
-
-Supongamos que deseas configurar el servicio `nginx` para que se inicie automáticamente en el destino `multi-user.target`. El comando sería:
-
-```bash
-sudo systemctl enable --now nginx.service
-```
-
-Esto configurará `nginx` para que se inicie automáticamente en el destino `multi-user.target` y lo iniciará inmediatamente.
+En qué *target* arranca un **servicio** lo decide su unidad (`WantedBy=multi-user.target` en `[Install]`);
+`systemctl enable --now servicio` lo activa en ese *target* y lo arranca ya (`enable` es un subcomando, no
+una opción `--enable`).
 
 ## Configure los clientes de servicios de tiempo (Capítulo 25)
 
@@ -274,11 +252,35 @@ Configurar un servidor para usar tiempo NTP en RHEL 8 es fácil si el servidor y
 > date --date '@1420987251'
 > ```
 >
-> El uso del tiempo epoch también crea un problema potencial de temporización en Linux. En un sistema de 32 bits, el número de segundos que se pueden contar en el campo reservado para la notación de tiempo se excederá en 2037. (Intenta establecer la hora en algún momento de 2050 si estás en un kernel de 32 bits; no funcionará). Los sistemas de 64 bits pueden gestionar el tiempo hasta bien entrado el siglo XXII.
+> El uso del tiempo epoch también crea un problema potencial de temporización en Linux. En un sistema de 32 bits, el número de segundos que se pueden contar en el campo reservado para la notación de tiempo se desborda el 19 de enero de 2038 (el «efecto 2038»; intenta establecer una fecha de 2050 en un sistema de 32 bits y no funcionará). Los sistemas de 64 bits pueden gestionar el tiempo hasta bien entrado el siglo XXII.
 
-El cliente de servicios de tiempo se configura generalmente con `systemd-timesyncd`, parte del sistema de inicio systemd, que proporciona una implementación simple de cliente NTP (Network Time Protocol).
+En RHEL el cliente de hora es **chronyd** (paquete `chrony`). `systemd-timesyncd` es el de Debian/Ubuntu y no
+está en los repositorios de RHEL.
 
-### Configurar el Cliente NTP con `systemd-timesyncd`
+### Configurar el cliente NTP con chrony
+
+```bash
+sudo dnf install -y chrony
+sudo vim /etc/chrony.conf
+```
+
+Comenta las líneas `pool …` de origen y añade el servidor que pida el enunciado:
+
+```
+server classroom.example.com iburst
+```
+
+`iburst` hace que la primera sincronización sea rápida (varias consultas seguidas al arrancar).
+
+```bash
+sudo systemctl enable --now chronyd
+sudo systemctl restart chronyd      # si ya estaba en marcha, para que lea el cambio
+sudo timedatectl set-ntp true        # NTP activo (equivale a habilitar chronyd)
+chronyc sources -v                   # el servidor con ^* es el que se está usando
+timedatectl                          # «System clock synchronized: yes»
+```
+
+Ejercicio completo en [`sincronizacion-ntp.md`](../ejercicios-memorizar/sincronizacion-ntp.md).
 
 ### Tabla 25-4. Descripción General del Comando timedatectl
 
@@ -291,79 +293,12 @@ El cliente de servicios de tiempo se configura generalmente con `systemd-timesyn
 | set-local-rtc [0 \| 1] | Controla si el RTC (el reloj en tiempo real, normalmente conocido como el reloj de hardware) está en hora local. |
 | set-ntp [0 \| 1] | Controla si NTP está habilitado. |
 
-#### 1. Verificar si `systemd-timesyncd` está instalado
-
-Puedes verificar si el servicio `systemd-timesyncd` está instalado utilizando el siguiente comando:
+### Zona horaria
 
 ```bash
-sudo systemctl status systemd-timesyncd
+timedatectl list-timezones | grep Madrid
+sudo timedatectl set-timezone Europe/Madrid
 ```
-
-#### 2. Instalar `systemd-timesyncd` si no está instalado
-
-```bash
-sudo apt-get update  # Para sistemas basados en Debian/Ubuntu
-sudo apt-get install systemd-timesyncd
-```
-
-#### 3. Configurar `systemd-timesyncd`
-
-Edita el archivo de configuración de `systemd-timesyncd` para especificar los servidores NTP. Puedes utilizar tu editor de texto preferido, por ejemplo:
-
-```bash
-sudo nano /etc/systemd/timesyncd.conf
-```
-
-Asegúrate de especificar al menos un servidor NTP en la sección `[Time]`. Puedes utilizar servidores NTP públicos, por ejemplo:
-
-```
-[Time]
-NTP=pool.ntp.org
-```
-
-#### 4. Reiniciar `systemd-timesyncd`
-
-Después de realizar cambios en la configuración, reinicia el servicio para que los cambios surtan efecto:
-
-```bash
-sudo systemctl restart systemd-timesyncd
-```
-
-#### 5. Verificar el Estado de `systemd-timesyncd`
-
-Puedes verificar el estado del servicio para asegurarte de que esté sincronizado correctamente:
-
-```bash
-sudo systemctl status systemd-timesyncd
-```
-
-### Comandos Adicionales
-
-- **Detener `systemd-timesyncd`:**
-
-  ```bash
-  sudo systemctl stop systemd-timesyncd
-  ```
-
-- **Iniciar `systemd-timesyncd`:**
-
-  ```bash
-  sudo systemctl start systemd-timesyncd
-  ```
-
-- **Desactivar `systemd-timesyncd` para que no se inicie automáticamente al arrancar:**
-
-  ```bash
-  sudo systemctl disable systemd-timesyncd
-  ```
-
-- **Activar `systemd-timesyncd` para que se inicie automáticamente al arrancar:**
-
-  ```bash
-  sudo systemctl enable systemd-timesyncd
-  ```
-
-**Nota:** si prefieres un cliente NTP diferente, como `ntp` o `chrony`, el proceso de instalación y configuración es distinto.
 
 ## Instale y actualice paquetes de software desde Red Hat Network, un repositorio remoto, o desde el sistema de archivos local
 
@@ -430,7 +365,20 @@ Si tienes los paquetes almacenados localmente, puedes instalarlos directamente. 
 
 ```bash
 sudo yum localinstall /ruta/al/paquete.rpm   # Para RHEL/CentOS versiones antiguas
-sudo dnf localinstall /ruta/al/paquete.rpm   # Para RHEL/CentOS versiones recientes y Fedora
+sudo dnf install /ruta/al/paquete.rpm       # RHEL 8+: instala el RPM local y resuelve sus dependencias
+                                             # (localinstall queda como alias obsoleto)
 ```
 
 Reemplaza `/ruta/al/paquete.rpm` con la ruta real al paquete RPM en tu sistema.
+
+## Modifique el cargador de arranque del sistema
+
+Está detallado en el [capítulo 3](03-sistemas-en-funcionamiento.md) (GRUB 2). En resumen, en RHEL 8+:
+
+```bash
+sudo grubby --update-kernel=ALL --args="console=ttyS0"   # añadir argumentos a todos los kernels
+sudo grubby --update-kernel=ALL --remove-args="rhgb quiet"
+sudo grubby --default-kernel                             # kernel por defecto
+sudo vim /etc/default/grub && sudo grub2-mkconfig -o /boot/grub2/grub.cfg   # timeout, etc.
+```
+
