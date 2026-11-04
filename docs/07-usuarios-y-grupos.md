@@ -43,8 +43,10 @@ Puedes utilizar `usermod` para modificar diversas propiedades del usuario, como 
 Ejemplo para cambiar el directorio de inicio:
 
 ```bash
-sudo usermod -d /nuevo/directorio nombre_usuario
+sudo usermod -d /nuevo/directorio -m nombre_usuario
 ```
+
+Sin `-m`, `usermod -d` solo cambia la ruta en `/etc/passwd`: el contenido del home antiguo no se mueve.
 
 ### 4. Cambiar la Contraseña de un Usuario
 
@@ -174,7 +176,7 @@ Esto cambiará el grupo principal del usuario `nombre_usuario` al grupo `nombre_
 sudo gpasswd -a nombre_usuario nombre_grupo
 ```
 
-Esto agregará al usuario `nombre_usuario` al grupo `nombre_grupo`. Asegúrate de utilizar la opción `-a` para agregar al usuario al grupo sin eliminarlo de otros grupos a los que pueda pertenecer.
+Esto agregará al usuario `nombre_usuario` al grupo `nombre_grupo` (`gpasswd -d` lo quita). A diferencia de `usermod -G` sin `-a`, `gpasswd -a` nunca quita al usuario de sus otros grupos.
 
 ## Configure el acceso de superusuario
 
@@ -231,13 +233,24 @@ En lugar de utilizar la cuenta "root" directamente, puedes asignar privilegios d
 sudo usermod -aG wheel nombre_usuario
 ```
 
-Asegúrate de que el archivo `/etc/sudoers` incluya la línea:
+`/etc/sudoers` se edita **siempre con `visudo`** (comprueba la sintaxis antes de guardar: un error dejaría a todos sin `sudo`). Asegúrate de que incluya la línea:
 
 ```
 %wheel ALL=(ALL) ALL
 ```
 
 ### 5. Uso de Sudo
+
+Para un usuario o grupo concreto es más limpio un fichero aparte en `/etc/sudoers.d/` (también con `visudo`):
+
+```bash
+sudo visudo -f /etc/sudoers.d/operadores
+```
+
+```
+%operadores ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart httpd   # solo esa orden, sin contraseña
+natasha     ALL=(ALL) ALL                                         # todo, pidiendo su contraseña
+```
 
 Los usuarios en el grupo `wheel` pueden utilizar sudo para ejecutar comandos con privilegios de superusuario:
 
