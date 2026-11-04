@@ -336,6 +336,8 @@ La gestión de permisos predeterminados de archivos se realiza principalmente a 
 
 El umask es una máscara de bits que se utiliza para establecer permisos predeterminados para nuevos archivos y directorios. Se resta del conjunto completo de permisos (777 para directorios y 666 para archivos) para determinar los permisos reales.
 
+> Ojo: no es una resta, son bits que se **quitan**. Con `umask 033` un fichero queda en `644` (no en `666 − 033 = 633`) y un directorio en `744`: el `3` quita `w` y `x`, y el fichero no tenía `x` que quitar.
+
 Para ver el umask actual:
 ```shell
 umask
@@ -365,9 +367,9 @@ En este ejemplo, se establecen permisos predeterminados para usuarios (`u`), gru
 - `setfacl`: Es el comando utilizado para establecer permisos de control de acceso.
 - `m`: Indica que se están modificando (o añadiendo) permisos.
 - `d:u::rwX,d:g::rwX,d:o::r-X`: Son las reglas ACL que se están aplicando.
-  - `d:u::rwX`: Establece permisos predeterminados para el propietario del directorio (`u`, usuario) en `rwX` (lectura, escritura y ejecución para archivos y acceso y exploración para directorios).
+  - `d:u::rwX`: Establece permisos predeterminados para el propietario (`u`, usuario) en `rwX`: lectura y escritura, más `x` en los directorios (y en los ficheros que ya fueran ejecutables).
   - `d:g::rwX`: Establece permisos predeterminados para el grupo del directorio (`g`, grupo) en `rwX`.
-  - `d:o::r-X`: Establece permisos predeterminados para otros usuarios (`o`, others) en `r-X` (lectura para archivos y nada para directorios).
+  - `d:o::r-X`: Establece permisos predeterminados para otros usuarios (`o`, others) en `r-X`: lectura en los ficheros y lectura más acceso (`x`) en los directorios. La `X` mayúscula solo da ejecución a los directorios y a los ficheros que ya eran ejecutables.
 - `/mi/directorio`: Es la ruta al directorio al cual se le están aplicando los permisos ACL.
 
 > **Nota:** El comando `chmod` y `setfacl` son herramientas relacionadas pero tienen propósitos ligeramente diferentes en Linux.
@@ -458,7 +460,7 @@ Por lo tanto, este comando otorga al grupo `sales` permisos de lectura y ejecuci
 >
 > Si al intentar establecer las ACLs en un sistema de archivos recibes un mensaje que dice "operación no soportada", probablemente tu sistema de archivos no tiene soporte para las ACLs. Para solucionar esto, necesitas agregar la opción de montaje **`acl`** en el archivo **`/etc/fstab`** para que el sistema de archivos se monte con soporte para ACLs por defecto.
 >
-> El archivo `/etc/fstab` contiene la información necesaria para montar automáticamente las particiones y dispositivos de almacenamiento en el sistema de archivos en el arranque del sistema. En este archivo, puedes especificar varias opciones de montaje para cada dispositivo, incluyendo `acl` para habilitar el soporte de ACLs.
+> El archivo `/etc/fstab` contiene la información necesaria para montar automáticamente las particiones y dispositivos de almacenamiento en el sistema de archivos en el arranque del sistema. En este archivo, puedes especificar varias opciones de montaje para cada dispositivo, incluyendo `acl` para habilitar el soporte de ACLs. En RHEL no hace falta: XFS siempre las admite y ext4 las activa por defecto (lo muestra `tune2fs -l /dev/… | grep 'Default mount options'`). Solo es necesario en sistemas de ficheros creados sin esa opción.
 >
 > 1. **Abre el archivo `/etc/fstab` con un editor de texto**. Puedes usar cualquier editor de texto que prefieras. Por ejemplo, si quieres usar `nano`, puedes escribir en la terminal:
 >    ```shell
@@ -570,7 +572,7 @@ El soporte para ACL debe estar habilitado en el sistema de archivos y el kernel 
 >
 > **Comparación con `tar`**
 >
-> Aunque `star` tiene muchas características avanzadas, para el examen RHCSA es más probable que te encuentres con `tar` debido a su ubicuidad y simplicidad. Sin embargo, conocer `star` y sus capacidades adicionales puede darte una ventaja en situaciones donde se requiera un archivado más avanzado.
+> Aunque `star` tiene muchas características avanzadas, para el examen RHCSA es más probable que te encuentres con `tar` debido a su ubicuidad y simplicidad. En RHEL 8+ `tar` también conserva ACL, atributos extendidos y contextos SELinux: `tar --acls --xattrs --selinux -czf copia.tar.gz dir/` (y las mismas opciones al extraer). Sin embargo, conocer `star` y sus capacidades adicionales puede darte una ventaja en situaciones donde se requiera un archivado más avanzado.
 >
 > **Consideraciones de seguridad**
 >
@@ -580,7 +582,7 @@ El soporte para ACL debe estar habilitado en el sistema de archivos y el kernel 
 
 Para que los cambios en el umask sean persistentes, puedes configurar el umask en el archivo de inicio del shell, como `~/.bashrc` o `~/.bash_profile`.
 
-Para hacer que los atributos predeterminados sean persistentes, puedes incorporar el comando `setfacl` en scripts de inicio o archivos de configuración específicos.
+Las ACL (también las predeterminadas, `d:`) ya son persistentes: se guardan en los metadatos del sistema de ficheros y sobreviven a los reinicios, sin scripts de inicio. Lo que no se conserva es al copiar sin `cp -a` ni al archivar con `tar` sin `--acls`.
 
 ## Configure la autenticación basada en claves para SSH
 
@@ -588,9 +590,10 @@ La autenticación basada en claves para SSH permite acceder a sistemas remotos s
 
 1. **Generar un Par de Claves en el Cliente:** En el cliente desde el cual te conectarás al servidor, ejecuta el siguiente comando para generar un par de claves SSH (si aún no tienes uno):
    ```shell
-   ssh-keygen -t rsa -b 2048
+   ssh-keygen -t ed25519            # o: ssh-keygen -t rsa -b 4096
    ```
-   Este comando creará un par de claves pública (`id_rsa.pub`) y privada (`id_rsa`) en el directorio `~/.ssh/` por defecto.
+   Este comando creará un par de claves pública (`id_ed25519.pub`) y privada (`id_ed25519`) en `~/.ssh/`.
+   Si el servidor tiene SELinux y el `authorized_keys` se copió a mano, `restorecon -Rv ~/.ssh`.
 2. **Copiar la Clave Pública al Servidor:** Utiliza el comando `ssh-copy-id` para copiar tu clave pública al servidor:
    ```shell
    ssh-copy-id usuario@servidor
@@ -599,7 +602,7 @@ La autenticación basada en claves para SSH permite acceder a sistemas remotos s
 
    Si `ssh-copy-id` no está disponible, puedes hacerlo manualmente:
    ```shell
-   cat ~/.ssh/id_rsa.pub | ssh usuario@servidor 'cat >> ~/.ssh/authorized_keys'
+   cat ~/.ssh/id_ed25519.pub | ssh usuario@servidor 'mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys'
    ```
 3. **Configuración Adicional en el Servidor:** Asegúrate de que el archivo de configuración de SSH en el servidor (`/etc/ssh/sshd_config`) permite la autenticación mediante claves. Verifica que la siguiente línea esté presente y sin el símbolo `#` al principio:
    ```
@@ -615,7 +618,7 @@ La autenticación basada en claves para SSH permite acceder a sistemas remotos s
    ```
 
 **Notas Adicionales:**
-- Asegúrate de que las claves privadas (`id_rsa`) estén protegidas y no sean accesibles por usuarios no autorizados.
+- Asegúrate de que las claves privadas (`id_ed25519`, `id_rsa`) estén protegidas: `~/.ssh` en 700 y la clave privada en 600 (si no, `ssh` se niega a usarla).
 - Puedes configurar opciones adicionales en el archivo `~/.ssh/config` en el cliente para personalizar la conexión SSH.
 - La autenticación basada en claves es más segura que la basada en contraseñas, pero debes proteger tus claves privadas y actualizarlas si es necesario.
 
@@ -661,8 +664,10 @@ SELinux (Security-Enhanced Linux) es un conjunto de extensiones de seguridad par
 4. **Modificar Reglas de Política (Opcional):** Puedes usar `semanage` para modificar reglas de política SELinux. Por ejemplo, para permitir que Apache se conecte a un puerto no estándar:
    ```shell
    sudo semanage port -a -t http_port_t -p tcp 8080
+   # si el puerto ya está definido (el 8080 lo está), -m en vez de -a:
+   sudo semanage port -m -t http_port_t -p tcp 8080
    ```
-5. **Reiniciar para Aplicar Cambios:** Es posible que algunos cambios requieran reiniciar para que surtan efecto completamente. Asegúrate de tener un plan para reiniciar el sistema si es necesario.
+5. **¿Hace falta reiniciar?** `setenforce` cambia entre `enforcing` y `permissive` al instante; lo de `/etc/selinux/config` se aplica en el siguiente arranque. Solo hace falta reiniciar (y un reetiquetado, `touch /.autorelabel`) al pasar de `disabled` a `enforcing`/`permissive`.
 
 **Notas Adicionales:**
 - En modo `enforcing`, SELinux aplicará las políticas de seguridad. En modo `permissive`, SELinux solo registrará violaciones de políticas en el log pero no las impondrá.
@@ -682,7 +687,7 @@ Usuarios
 
 Las etiquetas de contexto definen la naturaleza del objeto, y las reglas de SELinux se crean para hacer coincidir las etiquetas de contexto de los objetos fuente con las etiquetas de contexto de los objetos objetivo. Por lo tanto, establecer las etiquetas de contexto correctas es una habilidad muy importante para los administradores de sistemas.
 
-> **Nota:** Gestionar las etiquetas de contexto de SELinux es una habilidad clave para asegurar sistemas con SELinux. Aunque no está listada en los objetivos del examen RHCSA, es una explicación decente de cómo funcionan las etiquetas de contexto, porque una discrepancia en las etiquetas de contexto puede crear muchos problemas relacionados con SELinux.
+> **Nota:** Gestionar las etiquetas de contexto de SELinux es una habilidad clave y **sí está en los objetivos** del EX200 («List and identify SELinux file and process context», «Restore default file contexts»). Una etiqueta de contexto incorrecta es la causa más habitual de los problemas con SELinux.
 
 Cada etiqueta de contexto siempre consta de tres partes diferentes:
 
@@ -785,9 +790,9 @@ En SELinux, cada objeto (archivo, directorio o proceso) tiene un contexto de seg
    Esto mostrará una lista de los tipos de contexto disponibles.
 6. **Listar Tipos de Contexto de Procesos:**
    ```shell
-   sesearch --all --type -s proceso -c nombre_contexto
+   sesearch -A -s httpd_t -c file       # qué puede hacer el dominio httpd_t con ficheros
    ```
-   Esto mostrará todos los tipos de contexto asociados con procesos con el contexto especificado.
+   `sesearch` y `seinfo` vienen en el paquete `setools-console`.
 7. **Obtener Información Detallada sobre un Contexto:**
    ```shell
    sesearch -A -s proceso -t tipo_contexto
@@ -820,9 +825,10 @@ En SELinux, cada objeto (archivo, directorio o proceso) tiene un contexto de seg
 >    ```
 > 2. **Verificar la instalación:**
 >    ```shell
->    semanage --version
+>    rpm -q policycoreutils-python-utils
+>    semanage fcontext -l | head -3
 >    ```
->    Si este comando devuelve la versión de `semanage`, entonces la instalación fue exitosa.
+>    Si el paquete está instalado y `semanage` lista reglas, la instalación es correcta (`semanage` no tiene opción `--version`).
 > 3. **Añadir el contexto de seguridad para el directorio `/web`:**
 >    ```shell
 >    sudo semanage fcontext -a -t httpd_sys_content_t "/web(/.*)?"
@@ -870,9 +876,10 @@ SELinux utiliza etiquetas de puerto para controlar las conexiones de red y aplic
    Esto modifica una etiqueta de puerto existente para un contexto y protocolo específicos.
 5. **Restablecer Configuraciones de Etiquetas de Puerto a los Valores Predeterminados:**
    ```shell
-   sudo semanage port -r
+   sudo semanage port -C     # listar solo las personalizaciones locales
+   sudo semanage port -D     # borrarlas todas (vuelve a la política por defecto)
    ```
-   Esto restablece todas las configuraciones de etiquetas de puerto a los valores predeterminados.
+   (`-r` no es «restablecer»: es el rango MLS de la etiqueta.)
 6. **Listar Todos los Tipos de Contexto de Etiquetas de Puerto:**
    ```shell
    sudo semanage port -l | awk '{print $1}' | sort -u
