@@ -242,7 +242,7 @@ vgcreate vgnombre2 /dev/sdiX
 
 De este modo se crea con el tamaño que se necesita y pudiendo utilizar el resto del disco para otras particiones y otros pv.
 
-> **Nota:** Todo esto se realiza sin ningún sistema de ficheros. Para poder usar el comando `pvcreate` ese disco o partición debe tener el sistema de ficheros **XFS LVM (8e)**.
+> **Nota:** Todo esto se realiza sin ningún sistema de ficheros: `pvcreate` trabaja sobre el disco o la partición en bruto. Si se usa una partición, conviene marcarla con el **tipo de partición** «Linux LVM» (`8e` en `fdisk` con MBR, `8E00` en `gdisk`, `set N lvm on` en `parted`); no es obligatorio, pero deja claro qué contiene. `8e` es un tipo de partición, no un sistema de ficheros.
 
 Para eliminarlo, primero hay que eliminar el vg y luego el pv. Con los comandos `vgremove` y `pvremove`.
 
@@ -397,7 +397,7 @@ UUID=zzzz-zzzz  swap           swap           defaults             0            
 | **acl** | Agrega soporte para listas de control de acceso del sistema de archivos. |
 | **user_xattr** | Agrega soporte para atributos extendidos del usuario. |
 | **ro** | Monta el sistema de archivos en modo de solo lectura. |
-| **atime/noatime** | Deshabilita o habilita las modificaciones del tiempo de acceso. |
+| **atime/noatime** | Habilita (`atime`) o deshabilita (`noatime`) la actualización del tiempo de acceso al leer. |
 | **noexec/exec** | Deniega o permite la ejecución de archivos de programa desde el sistema de archivos. |
 | **_netdev** | Usa esto para montar un sistema de archivos de red, indicando que se debe esperar hasta que la red esté disponible. |
 
@@ -485,7 +485,7 @@ LABEL=mi_etiqueta   /mnt/mi_sistema_de_archivos   ext4   defaults   0   2
 
 Ten cuidado al editar `/etc/fstab`: un error en esta configuración puede afectar el arranque del sistema.
 
-## Agregue particiones y volúmenes lógicos nuevos, y cambie a un sistema de forma no destructiva
+## Agregue particiones, volúmenes lógicos y swap nuevos a un sistema de forma no destructiva
 
 Realiza copias de seguridad antes de cualquier cambio en la configuración del almacenamiento para evitar la pérdida de datos accidental.
 
@@ -548,14 +548,19 @@ Realiza copias de seguridad antes de cualquier cambio en la configuración del a
    /dev/nombre_del_grupo/nombre_del_volumen   /mnt/punto_de_montaje   tipo_de_sistema_de_archivos   defaults   0   2
    ```
 
-4. **Cambiar al nuevo sistema de archivos de forma no destructiva:** puedes hacer esto desmontando temporalmente el sistema de archivos original y montando el nuevo en su lugar. Por ejemplo:
+4. **Añadir swap sin destruir datos.** En el objetivo original (*«Add new partitions and logical volumes,
+   and swap to a system non-destructively»*) «swap» es el área de intercambio, no «cambiar». Se añade en
+   espacio libre (partición nueva o volumen lógico) sin tocar la swap ni las particiones existentes:
 
    ```shell
-   sudo umount /ruta/actual
-   sudo mount /dev/nombre_del_grupo/nombre_del_volumen /ruta/actual
+   sudo lvcreate -L 2G -n swap2 nombre_del_grupo          # o una partición nueva de tipo swap
+   sudo mkswap /dev/nombre_del_grupo/swap2
+   echo "/dev/nombre_del_grupo/swap2 none swap defaults 0 0" | sudo tee -a /etc/fstab   # o UUID=… de blkid
+   sudo swapon -a                                          # activa lo de fstab (y comprueba la línea)
+   swapon --show                                           # la nueva aparece junto a la que ya había
    ```
 
-   Luego, puedes cambiar la entrada en `/etc/fstab` para que apunte al nuevo sistema de archivos.
+   Ejercicio completo con partición en [`crear-particion-swap.md`](../ejercicios-memorizar/crear-particion-swap.md).
 
 ## Revisar el sistema de fichero usado
 

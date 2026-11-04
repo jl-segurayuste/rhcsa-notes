@@ -85,7 +85,7 @@ configuración tiene que **sobrevivir a un reinicio** sin intervención.
    - Creación y eliminación de volúmenes lógicos.
 3. **Configuración del montaje de sistemas de archivos**
    - Configuración de sistemas para montar sistemas de archivos durante el arranque usando UUID o etiquetas.
-   - Adición de particiones y volúmenes lógicos nuevos de manera no destructiva.
+   - Adición de particiones, volúmenes lógicos y swap nuevos de manera no destructiva.
 
 ## 5. Creación y configuración de sistemas de archivos
 
