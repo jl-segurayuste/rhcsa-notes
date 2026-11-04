@@ -53,12 +53,19 @@ sudo systemctl restart NetworkManager
 
 Si necesitas aplicar el nameserver a todas las conexiones de manera dinámica y no sabes los nombres de las conexiones de antemano, puedes hacerlo con un script que itere sobre todas las conexiones:
 
+> Es una alternativa al método anterior, no un paso más: con `dns=none` NetworkManager deja de escribir
+> `/etc/resolv.conf` y lo que se configure con `nmcli` no llega a ese fichero.
+
 ```bash
-for con in $(nmcli -t -f NAME con show); do
+nmcli -t -f NAME,TYPE con show --active | while IFS=: read -r con tipo; do
+    [ "$tipo" = loopback ] && continue          # RHEL 9 gestiona también «lo»
     nmcli con mod "$con" ipv4.dns "192.168.0.254"
     nmcli con up "$con"
 done
 ```
+
+Con `while read` los nombres con espacios («System eth0», «Wired connection 1») llegan enteros; con
+`for con in $(nmcli …)` se partirían en varias palabras.
 
 ## Verificar la configuración
 

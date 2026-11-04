@@ -821,7 +821,7 @@ Después de cambiar la contraseña o cancelar (Ctrl+C), la sesión termina autom
    # Shell restringido para cambiar contraseñas
    while true; do
        echo -n "Restricted shell> "
-       read -r cmd
+       read -r cmd || exit 0      # Ctrl+D o fin de la entrada: salir (si no, bucle infinito)
        if [ "$cmd" == "passwd" ]; then
            /usr/bin/passwd
        else
@@ -834,6 +834,11 @@ Después de cambiar la contraseña o cancelar (Ctrl+C), la sesión termina autom
    - Muestra un prompt (`Restricted shell>`).
    - Permite al usuario escribir un comando.
    - Ejecuta `passwd` si el usuario lo ingresa, y bloquea cualquier otro comando.
+   - Sale con Ctrl+D: sin el `|| exit 0`, `read` fallaría en cada vuelta y el bucle se quedaría
+     imprimiendo el prompt sin parar.
+   - El shell no limita lo que no pasa por él: por SSH el usuario aún podría abrir túneles
+     (`ssh -L`). Para cerrarlo, en `sshd_config`: `Match User bob` + `AllowTcpForwarding no` y
+     `X11Forwarding no`.
 
 2. **Verifica y configura los permisos del script**
 
@@ -1045,215 +1050,45 @@ El `--now` en `systemctl enable` hace tanto el enable como el start en un solo c
 
 **Enunciado**: Create a container that runs an HTTP server. Ensure that it is started on system boot as a system user service.
 
-### Pasos completos (versión final corregida)
+### Procedimiento (RHEL 9)
 
-**1. Configuración inicial del sistema:**
-
-```bash
-# Crear directorio para contenido web
-sudo mkdir -p /httproot
-
-# Configurar firewall
-sudo firewall-cmd --permanent --add-port=8080/tcp
-sudo firewall-cmd --permanent --add-service=http
-sudo firewall-cmd --reload
-
-# Configurar SELinux
-sudo semanage port -a -t http_port_t -p tcp 8080 2>/dev/null || sudo semanage port -m -t http_port_t -p tcp 8080
-sudo semanage fcontext -a -t container_file_t "/httproot(/.*)?"
-sudo restorecon -Rv /httproot/
-```
-
-**2. Crear usuario del sistema:**
+Detalle, alternativa con Quadlet y problemas habituales en
+[`crear-contenedor-http-servicio-sistema.md`](../ejercicios-memorizar/crear-contenedor-http-servicio-sistema.md).
 
 ```bash
-sudo useradd -r -s /bin/bash -d /var/lib/containers -m container-user
-```
-
-**3. Configurar permisos y submapeos:**
-
-```bash
-# Configurar permisos del directorio web
-sudo chown container-user:container-user /httproot
-sudo chmod 755 /httproot
-
-# Añadir submapeos UID/GID (usar el siguiente rango disponible)
-echo "container-user:558752:65536" | sudo tee -a /etc/subuid
-echo "container-user:558752:65536" | sudo tee -a /etc/subgid
-
-# Habilitar lingering
-sudo loginctl enable-linger container-user
-
-# Migrar sistema podman
-cd /tmp
-sudo -u container-user podman system migrate
-```
-
-**4. Configurar contenedor como usuario del sistema:**
-
-```bash
-# Cambiar al usuario del sistema
-sudo su - container-user
-
-# Crear contenido de prueba
+# Como root
+useradd container-user && passwd container-user      # usuario normal: recibe subuid/subgid
+loginctl enable-linger container-user                # sus servicios arrancan sin que inicie sesión
+mkdir -p /httproot
 echo "<h1>Hello from Container HTTP Server</h1>" > /httproot/index.html
+chown -R container-user: /httproot
+firewall-cmd --permanent --add-port=8080/tcp && firewall-cmd --reload
 
-# CORRECCIÓN CRÍTICA: Usar el DocumentRoot correcto para httpd oficial
-podman run -d --name http-container \
-    -p 127.0.0.1:8080:80 \
-    -v /httproot:/usr/local/apache2/htdocs:Z \
-    --security-opt label=disable \
-    --restart=always \
-    docker.io/library/httpd:latest
-
-# Verificar que funciona inmediatamente
-podman exec http-container cat /usr/local/apache2/htdocs/index.html
-
-# Generar servicio systemd
-mkdir -p ~/.config/systemd/user
+# Como container-user, en una sesión real (systemctl --user no funciona tras su/sudo -u)
+ssh container-user@localhost                         # o: machinectl shell container-user@
+podman run -d --name http-container -p 8080:80 \
+    -v /httproot:/usr/local/apache2/htdocs:Z docker.io/library/httpd
+mkdir -p ~/.config/systemd/user && cd ~/.config/systemd/user
 podman generate systemd --new --files --name http-container
-mv *.service ~/.config/systemd/user/
-
-# Salir del usuario
-exit
+podman rm -f http-container                          # con --new el servicio crea el suyo
+systemctl --user daemon-reload
+systemctl --user enable --now container-http-container.service
 ```
 
-**5. Habilitar servicio del sistema:**
+Errores que aparecían en versiones anteriores de estas notas:
+
+- `useradd -r -d /var/lib/containers`: un usuario de sistema no recibe rangos de `subuid`/`subgid` y
+  ese directorio es el almacenamiento de los contenedores de root.
+- `--security-opt label=disable`: desactiva SELinux para el contenedor; `:Z` ya resuelve el contexto.
+- `-p 127.0.0.1:8080:80` con el puerto abierto en el cortafuegos: solo responde desde la propia máquina.
+
+### Verificación
 
 ```bash
-# Configurar variables de entorno para systemd
-export XDG_RUNTIME_DIR="/run/user/$(id -u container-user)"
-mkdir -p "$XDG_RUNTIME_DIR"
-sudo chown container-user:container-user "$XDG_RUNTIME_DIR"
-
-# Habilitar y iniciar servicio
-sudo -u container-user XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" systemctl --user daemon-reload
-sudo -u container-user XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" systemctl --user enable container-http-container.service
-sudo -u container-user XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" systemctl --user start container-http-container.service
-
-# Restaurar shell nologin
-sudo usermod -s /sbin/nologin container-user
+loginctl show-user container-user | grep Linger      # Linger=yes
+curl http://localhost:8080
+systemctl reboot   # y, tras el arranque, sin iniciar sesión como container-user: curl http://localhost:8080
 ```
-
-**6. Verificación:**
-
-```bash
-# Verificar servicio
-sudo -u container-user XDG_RUNTIME_DIR="/run/user/$(id -u container-user)" systemctl --user status container-http-container.service
-
-# CORRECCIÓN: Probar servidor HTTP con IPv4 explícito
-curl -4 http://localhost:8080
-# O usar IP directa
-curl http://127.0.0.1:8080
-# Debe mostrar: <h1>Hello from Container HTTP Server</h1>
-
-# Verificar contenedor
-sudo -u container-user podman ps
-
-# Verificar inicio automático
-sudo loginctl show-user container-user | grep Linger
-```
-
-**7. Prueba de persistencia tras reinicio:**
-
-```bash
-# Reiniciar sistema
-sudo systemctl reboot
-
-# Después del reinicio, verificar
-curl -4 http://localhost:8080
-# o
-curl http://127.0.0.1:8080
-```
-
-### Comandos resumidos para examen
-
-```bash
-# Configuración inicial
-sudo mkdir -p /httproot
-sudo firewall-cmd --permanent --add-port=8080/tcp && sudo firewall-cmd --reload
-sudo semanage port -a -t http_port_t -p tcp 8080 2>/dev/null || sudo semanage port -m -t http_port_t -p tcp 8080
-sudo semanage fcontext -a -t container_file_t "/httproot(/.*)?" && sudo restorecon -Rv /httproot/
-
-# Crear usuario
-sudo useradd -r -s /bin/bash -d /var/lib/containers -m container-user
-sudo chown container-user:container-user /httproot
-echo "container-user:558752:65536" | sudo tee -a /etc/subuid
-echo "container-user:558752:65536" | sudo tee -a /etc/subgid
-sudo loginctl enable-linger container-user
-
-# Migrar podman
-cd /tmp && sudo -u container-user podman system migrate
-
-# Crear contenedor
-sudo su - container-user
-echo "<h1>Hello from Container HTTP Server</h1>" > /httproot/index.html
-podman run -d --name http-container -p 127.0.0.1:8080:80 -v /httproot:/usr/local/apache2/htdocs:Z --security-opt label=disable --restart=always docker.io/library/httpd:latest
-mkdir -p ~/.config/systemd/user
-podman generate systemd --new --files --name http-container
-mv *.service ~/.config/systemd/user/
-exit
-
-# Habilitar servicio
-sudo -u container-user XDG_RUNTIME_DIR="/run/user/$(id -u container-user)" systemctl --user daemon-reload
-sudo -u container-user XDG_RUNTIME_DIR="/run/user/$(id -u container-user)" systemctl --user enable --now container-http-container.service
-sudo usermod -s /sbin/nologin container-user
-
-# Verificar
-curl -4 http://localhost:8080
-```
-
-### Correcciones críticas aplicadas
-
-**1. DocumentRoot correcto:**
-
-- Antes: `-v /httproot:/var/www/html:z`
-- Ahora: `-v /httproot:/usr/local/apache2/htdocs:Z`
-
-**2. Networking IPv4:**
-
-- Antes: `-p 8080:80`
-- Ahora: `-p 127.0.0.1:8080:80`
-
-**3. Verificación con IPv4:**
-
-- Antes: `curl http://localhost:8080`
-- Ahora: `curl -4 http://localhost:8080` o `curl http://127.0.0.1:8080`
-
-**4. Opciones adicionales de robustez:**
-
-- `--security-opt label=disable`: Evita problemas SELinux persistentes.
-- `--restart=always`: Mejora la persistencia tras reinicios.
-- Contexto SELinux permanente con `sudo restorecon -Rv /httproot/`.
-
-### Puntos críticos para el examen
-
-**Obligatorios:**
-
-- Usuario del sistema con lingering habilitado.
-- Submapeos UID/GID configurados.
-- Servicio systemd de usuario habilitado.
-- Contenedor accesible en puerto 8080.
-- Inicio automático en el arranque del sistema.
-- DocumentRoot correcto: `/usr/local/apache2/htdocs`.
-- Verificación con IPv4: `curl -4 http://localhost:8080`.
-
-### Comandos de verificación del examinador
-
-```bash
-sudo -u container-user podman ps                                    # Contenedor corriendo
-sudo loginctl show-user container-user | grep Linger               # Linger=yes
-curl -4 http://localhost:8080                                      # Contenido personalizado
-systemctl reboot && curl -4 http://localhost:8080                  # Persistencia
-```
-
-### Troubleshooting común
-
-- Si IPv6 da problemas: usar `curl -4` o `127.0.0.1`.
-- Si SELinux bloquea: verificar `ls -Z /httproot/` y usar `--security-opt label=disable`.
-- Si no persiste: verificar lingering y regenerar servicio systemd.
-
----
 
 ## 15. Arranque automático del container user
 
@@ -1263,7 +1098,7 @@ Esto ya se realizó completamente en el ejercicio anterior.
 
 **Servicio de usuario del sistema:**
 
-- Usuario `container-user` creado como usuario del sistema (`-r`).
+- Usuario `container-user` (usuario normal, con lingering).
 - Servicio generado con `podman generate systemd`.
 - Archivo de servicio en `~/.config/systemd/user/`.
 
@@ -1286,7 +1121,7 @@ sudo loginctl show-user container-user | grep Linger
 # Debe mostrar: Linger=yes
 
 # Verificar que el servicio está habilitado
-sudo -u container-user XDG_RUNTIME_DIR="/run/user/$(id -u container-user)" systemctl --user is-enabled container-http-container.service
+sudo systemctl --user -M container-user@ is-enabled container-http-container.service
 # Debe mostrar: enabled
 
 # Verificar que está corriendo
@@ -1301,7 +1136,7 @@ curl http://localhost:8080
 
 ### Respuesta para el examen
 
-> "The container is already configured as a system user service with automatic startup on boot. This was implemented using: system user with lingering enabled, systemd user service generated by podman, service enabled for automatic startup."
+> "The container is already configured as a system user service with automatic startup on boot. This was implemented using: a regular user with lingering enabled, systemd user service generated by podman, service enabled for automatic startup."
 
 **El ejercicio ya está completo.**
 

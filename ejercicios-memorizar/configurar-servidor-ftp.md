@@ -89,3 +89,7 @@ El servicio ya se reinició en el paso 4, pero eso fue *antes* de editar `vsftpd
 ## Funcionamiento
 
 Una vez completados estos pasos, el servidor vsftpd estará configurado para permitir descargas anónimas desde el directorio `/var/ftp/pub`. Los usuarios podrán acceder a este directorio sin necesidad de autenticación, utilizando un cliente FTP y especificando el servidor FTP con la dirección IP o nombre del sistema donde se realizó esta configuración.
+
+> **Nota RHEL 8/9:** `service` y `chkconfig` son de RHEL 6. Hoy sería `dnf install -y vsftpd`,
+> `systemctl enable --now vsftpd` y abrir el cortafuegos: `firewall-cmd --permanent --add-service=ftp`
+> y `firewall-cmd --reload`. El FTP ya no figura en los objetivos del EX200 de RHEL 9.

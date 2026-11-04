@@ -670,16 +670,23 @@ Procesar la salida de comandos de shell dentro de un script es una tarea común 
 fecha_actual=$(date)
 echo "Fecha actual: $fecha_actual"
 
-# Procesar la salida de un comando en un bucle
+# Recorrer los ficheros del directorio: con un glob, no con $(ls)
+# ($(ls) parte los nombres con espacios en varias palabras)
 echo "Listado de archivos en el directorio actual:"
-for archivo in $(ls); do
+for archivo in *; do
     echo "$archivo"
 done
 
-# Filtrar la salida de un comando usando grep
+# Solo los .txt: el propio glob filtra
 echo "Procesar solo archivos .txt:"
-for archivo in $(ls | grep '\.txt$'); do
+for archivo in *.txt; do
+    [ -e "$archivo" ] || continue   # si no hay ninguno, el patrón queda literal
     echo "$archivo"
+done
+
+# Para la salida de otro comando, línea a línea:
+df -h | while read -r linea; do
+    echo "$linea"
 done
 ```
 
@@ -695,6 +702,9 @@ La expansión de comandos (`$()`) y las tuberías (`|`) son herramientas poderos
 
 ### 1. Estructura básica de un script
 
+> Los comentarios de la derecha son explicativos. En un script real el shebang va solo en la primera
+> línea, sin nada detrás: el núcleo pasaría ese texto a bash como argumento y el script no arrancaría.
+
 ```bash
 #!/bin/bash                 # 1. Shebang (obligatorio)
 # Comentario descriptivo    # 2. Comentarios
@@ -707,6 +717,8 @@ funcion() {                 # 6. Funciones
 ```
 
 ### 2. Shebang (`#!`)
+
+Una de estas, sola en la primera línea (sin el comentario):
 
 ```bash
 #!/bin/bash              # Usar bash
