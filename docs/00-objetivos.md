@@ -4,6 +4,24 @@ Documento de objetivos oficiales del examen RHCSA 8 (Red Hat Certified System Ad
 
 > **Nota sobre versiones (RHEL 8 / RHEL 9):** este documento de objetivos procede originalmente de RHCSA 8, pero los 10 dominios que cubre (incluida la gestión de contenedores) se han mantenido prácticamente iguales en la versión actual del examen, basada en RHEL 9. El resto del repositorio mezcla ambas procedencias a propósito: la teoría de `docs/` sigue mayormente el temario de RHEL 8, mientras que los exámenes de práctica en [`examenes-practica/`](../examenes-practica/) se resolvieron sobre AlmaLinux 9 (un rebuild de RHEL 9). En la inmensa mayoría de los objetivos esto no supone ninguna diferencia práctica — son los mismos comandos y conceptos en ambas versiones. Donde sí puede haber diferencias reales entre RHEL 8 y RHEL 9 (por ejemplo, el formato de configuración de red heredado `ifcfg-*` frente al formato `keyfile` de NetworkManager, o `yum` frente a `dnf` como nombre de comando), los ficheros correspondientes ya mencionan ambas variantes explícitamente. Si tienes dudas sobre si un comando concreto sigue siendo válido en RHEL 9, verifícalo contra la documentación oficial antes del examen.
 
+## Cambios en el examen actual (EX200 sobre RHEL 10)
+
+Comprobado en la [página oficial del EX200](https://www.redhat.com/en/services/training/ex200-red-hat-certified-system-administrator-rhcsa-exam)
+el 2026-11-04: el examen se basa en **Red Hat Enterprise Linux 10**. Respecto a la lista de RHCSA 8 de
+abajo:
+
+| Cambio | Detalle | En estas notas |
+|---|---|---|
+| **Nuevo: Flatpak** | Configurar repositorios Flatpak e instalar y quitar paquetes Flatpak (dominio nuevo *Manage software*, junto a los repositorios RPM) | [`docs/12-flatpak.md`](12-flatpak.md) |
+| **Fuera: contenedores** | Ya no hay objetivos de podman, imágenes ni contenedores como servicio | [`docs/11-gestion-de-contenedores.md`](11-gestion-de-contenedores.md) y los ejercicios de contenedores quedan como referencia |
+| Tareas programadas | `at`, `cron` **y temporizadores de systemd** | [`teoria-memorizar/system-timers.md`](../teoria-memorizar/system-timers.md) |
+| Almacenamiento | Particiones solo en **GPT**; añadir **swap** sin destruir datos | [`ejercicios-memorizar/crear-particion-swap.md`](../ejercicios-memorizar/crear-particion-swap.md) |
+| Fuera: VDO y Stratis | No aparecen en los objetivos (ya no estaban en RHEL 9) | Los ejercicios se conservan como referencia |
+| SELinux | Desaparece «diagnosticar incumplimientos rutinarios»; se mantienen modos, contextos, `restorecon`, puertos y booleanos | [`docs/09-selinux.md`](09-selinux.md) sigue siendo útil para resolver problemas |
+
+Todo lo demás coincide en esencia con la lista de abajo. Como en todos los exámenes de Red Hat, la
+configuración tiene que **sobrevivir a un reinicio** sin intervención.
+
 ## 1. Conocimiento y uso de las herramientas principales
 
 1. **Acceso y comandos en el intérprete de comandos de shell**

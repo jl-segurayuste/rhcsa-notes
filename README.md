@@ -2,9 +2,15 @@
 
 Apuntes de estudio y ejercicios de práctica para la certificación **Red Hat Certified System Administrator (RHCSA)**, organizados como libro de referencia en Markdown.
 
-## Versión: RHEL 8 y RHEL 9
+## Versión: RHEL 8, 9 y 10
 
-Este repositorio mezcla contenido de origen con intención: la teoría de `docs/` sigue mayormente el temario de RHCSA sobre RHEL 8, mientras que los exámenes de práctica en `examenes-practica/` se resolvieron sobre AlmaLinux 9 (un rebuild de RHEL 9). Los 10 dominios del examen son prácticamente idénticos entre ambas versiones, así que en la gran mayoría de los casos da igual — son los mismos comandos y conceptos. Donde hay diferencias reales conocidas (por ejemplo, `yum` frente a `dnf`, o el formato `ifcfg-*` frente al formato `keyfile` de NetworkManager para la configuración de red), los ficheros ya mencionan ambas variantes. Más detalle en [`docs/00-objetivos.md`](docs/00-objetivos.md).
+La teoría de `docs/` sigue mayormente el temario de RHCSA sobre RHEL 8 y los exámenes de práctica de
+`examenes-practica/` se resolvieron sobre AlmaLinux 9. **El EX200 actual se basa en RHEL 10**: añade
+Flatpak ([`docs/12-flatpak.md`](docs/12-flatpak.md)) y quita los contenedores, VDO y Stratis, que se
+conservan como referencia. La lista completa de diferencias está en
+[`docs/00-objetivos.md`](docs/00-objetivos.md#cambios-en-el-examen-actual-ex200-sobre-rhel-10). Donde
+cambian los comandos entre versiones (`yum`/`dnf`, `ifcfg-*`/keyfile de NetworkManager, `vdo`/LVM-VDO,
+`podman generate systemd`/Quadlet…), los ficheros indican las variantes.
 
 ## Estado
 
@@ -12,7 +18,7 @@ Este repositorio mezcla contenido de origen con intención: la teoría de `docs/
 
 | Carpeta | Ficheros | Contenido |
 | --- | --- | --- |
-| [`docs/`](docs/) | 13 | Los 12 capítulos del temario oficial (00-11) + 1 subpágina ampliada (LVM) |
+| [`docs/`](docs/) | 14 | Los capítulos del temario (00-12, el 12 añadido para RHEL 10) + 1 subpágina ampliada (LVM) |
 | [`teoria-memorizar/`](teoria-memorizar/) | 13 | 12 temas puntuales + 1 subpágina (redimensionar LVs) |
 | [`ejercicios-memorizar/`](ejercicios-memorizar/) | 29 | 28 ejercicios recurrentes + 1 variante (reset de root en Debian) |
 | [`examenes-practica/`](examenes-practica/) | 6 | Índice general + Exam 1 + Exámenes A, B, C y D |
@@ -39,7 +45,8 @@ Un puñado de capturas de pantalla, un adjunto PDF y un "synced block" de Notion
 8. [Gestión de la seguridad](docs/08-gestion-de-la-seguridad.md)
 9. [Diagnostique y aborde los incumplimientos rutinarios de las políticas de SELinux](docs/09-selinux.md)
 10. [Gestión de las conexiones de red básicas](docs/10-conexiones-de-red.md)
-11. [Gestión de contenedores](docs/11-gestion-de-contenedores.md)
+11. [Gestión de contenedores](docs/11-gestion-de-contenedores.md) *(ya no está en el EX200 de RHEL 10)*
+12. [Flatpak](docs/12-flatpak.md) *(nuevo en el EX200 de RHEL 10)*
 
 Además, [`docs/lvm-logical-volume-manager.md`](docs/lvm-logical-volume-manager.md) amplía el tema de LVM enlazado desde el capítulo 4.
 
