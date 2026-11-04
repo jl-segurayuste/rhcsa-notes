@@ -167,7 +167,7 @@ sudo yum install autofs
    ```
 
    - `my_nfs_share`: es el nombre del directorio que se creará en `/mnt/auto`.
-   - `rw,soft,intr`: son opciones de montaje (puedes ajustarlas según tus necesidades).
+   - `rw,soft,intr`: son opciones de montaje (puedes ajustarlas según tus necesidades). `intr` ya no tiene efecto en los kernels actuales, y `soft` con escritura puede corromper datos si el servidor deja de responder; para escritura es más seguro `-rw,sync` (con `hard`, el valor por defecto).
    - `servidor:/compartido`: es la ubicación del recurso remoto.
 
 5. Guarda y cierra el archivo.
@@ -270,7 +270,10 @@ sudo chmod g+s /ruta/del/directorio
 
 > **Nota:** la opción `g+s` establece el bit "setgid" en el directorio, lo que significa que los archivos creados en ese directorio heredarán el grupo del directorio en lugar del grupo primario del usuario que los creó. Esto se aplica a los subdirectorios también.
 >
-> En cambio, si usas `chmod 2775`, estás estableciendo permisos específicos, incluido el bit "setgid", pero esto no garantiza que los subdirectorios hereden automáticamente el grupo del directorio principal. Puedes tener que configurar permisos adicionales en subdirectorios según tus necesidades.
+> `chmod 2775` y `chmod g+s` ponen exactamente el mismo bit; la diferencia es solo que `2775` fija además el
+> resto de permisos (`rwxrwxr-x`) y `g+s` no toca los demás. Con cualquiera de los dos, los ficheros y
+> subdirectorios **nuevos** heredan el grupo, y los subdirectorios nuevos heredan también el bit setgid. Lo
+> que **no** cambia es lo que ya existía: para eso, `chgrp -R grupo dir` y `find dir -type d -exec chmod g+s {} +`.
 
 ### Verificación de Configuración
 
@@ -312,7 +315,7 @@ El "s" al final de los permisos indica que el GID está configurado.
    getenforce
    ```
 
-   Puedes ajustar los contextos de SELinux con `chcon` si es necesario.
+   Puedes ajustar los contextos de SELinux con `chcon` si es necesario, pero ese cambio se pierde con el siguiente `restorecon` o reetiquetado: para que dure, `semanage fcontext -a -t tipo 'ruta(/.*)?'` y `restorecon -Rv ruta`.
 
    ```shell
    sudo chcon -Rv --type=nuevo_contexto archivo_o_directorio
