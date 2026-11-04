@@ -34,6 +34,9 @@ http://content.example.com/rhel8.2/x86_64/dvd/BaseOS
 http://content.example.com/rhel7.0/x86_64/dvd/AppStream
 ```
 
+> El enunciado se conserva tal como estaba, pero RHEL 7 no tiene AppStream: la ruta buena es `rhel8.2/x86_64/dvd/AppStream`.
+> Ver [`configuracion-repositorios-url.md`](../teoria-memorizar/configuracion-repositorios-url.md) (incluido el aviso de GPG).
+
 #### 4] User Management
 
 Add users `natasha`, `harry`, `sarah`, set password as `password`. Create a group `admin`. `natasha` and `harry` are secondary members of the `admin` group. `sarah` should not have an interactive shell prompt. Make a directory `/mnt/vm`; the `admin` group must belong to the directory. All users in the group have read and write access to each other's files.

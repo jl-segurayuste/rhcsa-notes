@@ -36,17 +36,17 @@ Esta línea permite que el sistema monte el CD o DVD automáticamente en `/repo`
 5. Se lanzan los siguientes comandos para añadir estos directorios al repositorio de software:
 
 ```bash
-dnf config-manager --add-repo=file://repo/BaseOS
+dnf config-manager --add-repo=file:///repo/BaseOS
 ```
 
 ```bash
-dnf config-manager --add-repo=file://repo/AppStream
+dnf config-manager --add-repo=file:///repo/AppStream
 ```
 
 Explicación de cada comando:
 
-1. **`dnf config-manager --add-repo=file://repo/BaseOS`**: Este comando añade un repositorio llamado `BaseOS` usando la ruta `file://repo/BaseOS` como fuente. Aquí, `BaseOS` contiene los paquetes básicos del sistema operativo, incluyendo el núcleo y herramientas esenciales. Al ejecutarlo, el sistema agrega esta ruta local como un repositorio, permitiendo que `dnf` busque paquetes y actualizaciones en `BaseOS`.
-2. **`dnf config-manager --add-repo=file://repo/AppStream`**: Este comando añade otro repositorio, `AppStream`, usando la ruta `file://repo/AppStream` como origen. `AppStream` contiene aplicaciones y paquetes adicionales que se pueden instalar y actualizar, dándole al usuario acceso a una variedad de software opcional. Al añadirlo de esta forma, `dnf` también buscará en este repositorio para la instalación de aplicaciones adicionales.
+1. **`dnf config-manager --add-repo=file:///repo/BaseOS`**: Este comando añade un repositorio llamado `BaseOS` usando la ruta `file:///repo/BaseOS` como fuente. Aquí, `BaseOS` contiene los paquetes básicos del sistema operativo, incluyendo el núcleo y herramientas esenciales. Al ejecutarlo, el sistema agrega esta ruta local como un repositorio, permitiendo que `dnf` busque paquetes y actualizaciones en `BaseOS`.
+2. **`dnf config-manager --add-repo=file:///repo/AppStream`**: Este comando añade otro repositorio, `AppStream`, usando la ruta `file:///repo/AppStream` como origen. `AppStream` contiene aplicaciones y paquetes adicionales que se pueden instalar y actualizar, dándole al usuario acceso a una variedad de software opcional. Al añadirlo de esta forma, `dnf` también buscará en este repositorio para la instalación de aplicaciones adicionales.
 
 ### Notas
 
@@ -420,7 +420,8 @@ sudo lsblk -o NAME,MOUNTPOINT,FSTYPE,SIZE
    - Añade el volumen a `/etc/fstab` para que se monte automáticamente al iniciar el sistema:
 
 ```bash
-echo "/stratis/stratispool/stratisvol /stratis xfs defaults 0 0" | sudo tee -a /etc/fstab
+echo "/dev/stratis/stratispool/stratisvol /stratis xfs defaults,x-systemd.requires=stratisd.service 0 0" | sudo tee -a /etc/fstab
+# sin x-systemd.requires, en el arranque el sistema de ficheros puede no existir aún y se entra en emergencia
 ```
 
    - Monta el volumen de inmediato:
@@ -483,7 +484,7 @@ sudo semanage port -l | grep http_port_t
    - Añade el puerto 8080 al contexto `http_port_t`:
 
 ```bash
-sudo semanage port -a -t http_port_t -p tcp 8080
+sudo semanage port -a -t http_port_t -p tcp 8080 || sudo semanage port -m -t http_port_t -p tcp 8080   # el 8080 ya está definido
 ```
 
 4. **Permitir el puerto 8080 en firewalld:**

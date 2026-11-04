@@ -219,8 +219,10 @@ Por ejemplo, para usar el puerto 8080:
 1. Agregar el puerto a SELinux:
 
    ```bash
-   sudo semanage port -a -t http_port_t -p tcp 8080
+   sudo semanage port -a -t http_port_t -p tcp 8080 || sudo semanage port -m -t http_port_t -p tcp 8080
    ```
+
+   (el 8080 ya está definido en la política, así que `-a` suele fallar y hace falta `-m`)
 
 2. Permitir el puerto en el firewall:
 
@@ -351,10 +353,11 @@ sudo dnf install vim
   ```
 
 - **Persistencia**: Con la entrada en `/etc/fstab`, el montaje de la ISO será automático en cada reinicio.
-- **Deshabilitar `subscription-manager`**: Si hay referencias a `subscription-manager`, puedes deshabilitarlo temporalmente:
+- **Deshabilitar `subscription-manager`**: es un *plugin* de dnf, no un repositorio (`config-manager --set-disabled` no lo encuentra). Para que deje de avisar de que el sistema no está registrado:
 
   ```bash
-  dnf config-manager --set-disabled subscription-manager
+  sudo sed -i 's/^enabled=1/enabled=0/' /etc/dnf/plugins/subscription-manager.conf
+  # o, solo para una orden:  dnf --disableplugin=subscription-manager install …
   ```
 
 ### Verificaciones finales
