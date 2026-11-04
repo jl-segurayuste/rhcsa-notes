@@ -234,8 +234,8 @@ fi
 | No igual | `!=` | Verifica si dos cadenas no son iguales | `if [ "$str1" != "$str2" ]; then echo "Diferentes"; fi` |
 | Vacío | `-z` | Verifica si la cadena está vacía | `if [ -z "$str" ]; then echo "Cadena vacía"; fi` |
 | No vacío | `-n` | Verifica si la cadena no está vacía | `if [ -n "$str" ]; then echo "Cadena no vacía"; fi` |
-| Menor que (ASCII) | `<` | Verifica si la primera cadena es menor que la segunda (orden ASCII) | `if [[ "$str1" < "$str2" ]]; then echo "Menor"; fi` |
-| Mayor que (ASCII) | `>` | Verifica si la primera cadena es mayor que la segunda (orden ASCII) | `if [[ "$str1" > "$str2" ]]; then echo "Mayor"; fi` |
+| Menor que (orden alfabético) | `<` | Verifica si la primera cadena va antes que la segunda (según la configuración regional, `LC_COLLATE`) | `if [[ "$str1" < "$str2" ]]; then echo "Menor"; fi` |
+| Mayor que (orden alfabético) | `>` | Verifica si la primera cadena va después que la segunda (según `LC_COLLATE`) | `if [[ "$str1" > "$str2" ]]; then echo "Mayor"; fi` |
 
 #### Ejemplo completo (corchetes simples)
 
@@ -530,47 +530,27 @@ chmod +x nombre_del_script.sh
 ./nombre_del_script.sh
 ```
 
-> **Nota:** si deseas que el script imprima solo los nombres de los archivos con un tamaño mayor que 1GB, puedes modificarlo usando `du` (disk usage) para obtener el tamaño de cada archivo y compararlo con un umbral:
+> **Nota:** para imprimir solo los archivos de más de 1 GiB, compara el tamaño en bytes:
 > ```shell
 > #!/bin/bash
 >
-> # Imprimir el nombre de archivos con tamaño mayor que 1GB en el directorio actual
-> echo "Archivos con tamaño mayor que 1GB:"
+> # Archivos de más de 1 GiB en el directorio actual
+> limite=$((1024 ** 3))
 > for archivo in *; do
 >     if [ -f "$archivo" ]; then
->         tamaño=$(du -b "$archivo" | awk '{print $1}')  # Obtener el tamaño del archivo en bytes
->         tamaño_en_gb=$((tamaño / 1024**3))  # Convertir el tamaño a GB
->
->         if [ $tamaño_en_gb -gt 1 ]; then
+>         tamano=$(stat -c %s "$archivo")     # tamaño en bytes
+>         if [ "$tamano" -gt "$limite" ]; then
 >             echo "$archivo"
 >         fi
 >     fi
 > done
 > ```
-> Explicación de los cambios:
-> 1. `tamaño=$(du -b "$archivo" | awk '{print $1}')`: usa `du -b` para obtener el tamaño del archivo en bytes; `awk` extrae la primera columna.
-> 2. `tamaño_en_gb=$((tamaño / 1024**3))`: convierte el tamaño de bytes a gigabytes.
-> 3. `if [ $tamaño_en_gb -gt 1 ]; then`: verifica si el tamaño en GB es mayor que 1.
->
-> También puedes usar la opción `-h` de `ls` para mostrar tamaños en formato legible por humanos:
-> ```shell
-> #!/bin/bash
->
-> # Imprimir el nombre de archivos con tamaño mayor que 1GB en el directorio actual
-> echo "Archivos con tamaño mayor que 1GB:"
-> for archivo in *; do
->     if [ -f "$archivo" ]; then
->         tamaño=$(ls -lh "$archivo" | awk '{print $5}')  # Obtener el tamaño del archivo en formato humano
->
->         if [ "$tamaño" != "0" ] && [ "$tamaño" != "1.0G" ]; then
->             echo "$archivo"
->         fi
->     fi
-> done
-> ```
-> Explicación:
-> 1. `tamaño=$(ls -lh "$archivo" | awk '{print $5}')`: usa `ls -lh` para obtener el tamaño en formato humano.
-> 2. `if [ "$tamaño" != "0" ] && [ "$tamaño" != "1.0G" ]; then`: filtra los archivos que no sean de tamaño cero o exactamente 1GB.
+> - Los nombres de variable de bash solo admiten letras ASCII, dígitos y `_`: `tamaño=…` da
+>   «command not found».
+> - Se compara en bytes: pasando a GB con división entera, un fichero de 1,5 GB daría `1` y no
+>   superaría `-gt 1`.
+> - Sin bucle, `find . -maxdepth 1 -type f -size +1G` hace lo mismo. Comparar la salida de `ls -lh`
+>   («1.5G», «900M») como texto no sirve.
 
 ### Leer líneas de un archivo con `while`
 
@@ -693,8 +673,9 @@ done
 En este ejemplo:
 
 - `fecha_actual=$(date)`: almacena la salida del comando `date` en la variable `$fecha_actual`.
-- `for archivo in $(ls); do`: utiliza la expansión de comandos para iterar sobre la salida de `ls`.
-- `for archivo in $(ls | grep '\.txt$'); do`: utiliza la tubería (`|`) para enviar la salida de `ls` a `grep` y filtrar solo los archivos que terminan en `.txt`.
+- `for archivo in *; do`: recorre los ficheros con un glob (no con `$(ls)`, que parte los nombres con espacios).
+- `for archivo in *.txt; do`: el propio glob filtra los `.txt`.
+- `df -h | while read -r linea; do`: para la salida de otro comando, línea a línea con `while read`.
 
 La expansión de comandos (`$()`) y las tuberías (`|`) son herramientas poderosas para procesar la salida de comandos en scripts de shell. Sin embargo, es importante manejar adecuadamente casos especiales, como nombres de archivos que contienen espacios o caracteres especiales; en esos casos pueden necesitarse enfoques más avanzados, como el uso de comillas o el comando `read` para procesar la salida línea por línea.
 
@@ -1417,7 +1398,7 @@ esac
 |---|---|
 | Comparar números, cadenas, condiciones de archivos | `if` |
 | Evaluar una variable contra múltiples valores | `case` |
-| Evaluar patrones (como expresiones regulares) | `case` |
+| Evaluar patrones de glob (`*`, `?`, `[a-z]`; no son expresiones regulares) | `case` |
 | Necesitas lógica más compleja (varias condiciones) | `if` (con `elif` y `else`) |
 
 ### ¿Cuándo usar `if`?
@@ -1780,7 +1761,7 @@ Contador: 5
 
 ```bash
 while true; do
-    read -p "Ingresa un comando (quit para salir): " comando
+    read -r -p "Ingresa un comando (quit para salir): " comando || break   # Ctrl+D también sale
 
     if [ "$comando" = "quit" ]; then
         break
@@ -1793,7 +1774,7 @@ done
 ¿Qué hace?
 
 1. `while true`: bucle infinito. `true` siempre devuelve 0 (verdadero).
-2. `read -p ...`: solicita al usuario que escriba un comando.
+2. `read -r -p ... || break`: solicita un comando; si la entrada se acaba (Ctrl+D), `read` falla y se sale (sin el `|| break` el bucle no terminaría nunca).
 3. `if [ "$comando" = "quit" ]`: si el usuario escribe `quit`...
 4. `break`: ...sale del bucle.
 5. Si no, se imprime el comando ejecutado.

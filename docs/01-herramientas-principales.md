@@ -381,7 +381,7 @@ Mantén las claves privadas seguras, deshabilita el acceso de root directo y man
    bzip2 -d archivo_respaldo.tar.bz2
    ```
 
-El orden de las opciones de `tar` (`cvf` o `xvf`, por ejemplo) es crucial. La secuencia `-zxvf` puede usarse si quieres descomprimir y extraer al mismo tiempo.
+En las opciones agrupadas de `tar` el orden da igual salvo por una: `f` va la **última**, porque la siguiente palabra es el nombre del archivo (`tar cfv copia.tar dir/` crearía un archivo llamado `v`). `tar xzvf copia.tar.gz` (o `xjvf` para `.bz2`) descomprime y extrae a la vez; al crear, `czvf`/`cjvf` comprimen directamente sin pasar por `gzip`/`bzip2` aparte.
 
 ## Cree y edite archivos de texto
 
@@ -485,7 +485,7 @@ Un enlace físico es una referencia adicional a un archivo existente. Los enlace
 > 3. **Permisos:** información sobre los permisos del archivo.
 > 4. **Dueño y Grupo:** identificación del usuario y grupo propietarios del archivo.
 > 5. **Tamaño del Archivo:** tamaño en bytes del archivo.
-> 6. **Fecha y Hora de Creación/Modificación/Último Acceso.**
+> 6. **Fechas:** último acceso (`atime`), última modificación del contenido (`mtime`) y último cambio del inodo, como permisos o propietario (`ctime`; **no** es la de creación). ext4 y XFS guardan además la de creación (`stat` la muestra como *Birth*).
 > 7. **Número de Enlaces Duros:** indica cuántos enlaces duros apuntan al mismo inodo. Cuando este número llega a cero, el sistema operativo libera el espacio y elimina el inodo.
 > 8. **Bloques de Datos Directos, Indirectos y Doblemente Indirectos:** almacenan direcciones de bloques de datos que contienen el contenido real del archivo.
 >
@@ -576,7 +576,7 @@ En sistemas Unix/Linux, la gestión de permisos es crucial para controlar el acc
     ```bash
     chmod g+s directorio
     ```
-- **Sticky Bit**: restringe la eliminación de archivos en un directorio. Solo el propietario del archivo puede eliminarlo. Se representa con el valor numérico 1. Para aplicarlo: `chmod +t`.
+- **Sticky Bit**: restringe la eliminación de archivos en un directorio. Solo pueden borrar o renombrar un archivo su propietario, el propietario del directorio y root. Se representa con el valor numérico 1. Para aplicarlo: `chmod +t`.
   - Ejemplo: para que solo el propietario de un archivo dentro de `directorio_compartido` pueda eliminarlo:
     ```bash
     chmod +t directorio_compartido
