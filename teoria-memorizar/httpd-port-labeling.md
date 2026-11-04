@@ -41,6 +41,8 @@ El ejercicio pide realizar lo siguiente:
 
      ```bash
      sudo semanage port -a -t http_port_t -p tcp 8080
+     # Si responde que el puerto ya está definido (el 8080 lo está en la política de RHEL):
+     sudo semanage port -m -t http_port_t -p tcp 8080
      ```
 
    Este comando le dice a SELinux que asocie el puerto TCP 8080 con el tipo `http_port_t`, lo que permitirá a Apache aceptar conexiones en este puerto.
@@ -56,8 +58,10 @@ El ejercicio pide realizar lo siguiente:
    Esto debería mostrar algo similar a:
 
    ```text
-   http_port_t      tcp      80, 443, 8080
+   http_port_t      tcp      8080, 80, 81, 443, …
    ```
+
+   (el 8080 aparece en la lista de `http_port_t`; el resto depende de la versión de la política)
 
 4. **Reiniciar Apache**
 
@@ -65,7 +69,10 @@ El ejercicio pide realizar lo siguiente:
 
    ```bash
    sudo systemctl restart httpd
+   sudo firewall-cmd --permanent --add-port=8080/tcp && sudo firewall-cmd --reload
    ```
+
+   Si no arranca, `journalctl -u httpd` y `ausearch -m AVC -ts recent` dicen si es SELinux.
 
 ## Objetivo del ejercicio
 

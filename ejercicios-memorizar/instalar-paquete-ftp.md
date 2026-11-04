@@ -65,3 +65,7 @@ rpm -q zsh
 ```
 
 Este comando te mostrará la versión del paquete zsh instalada en tu sistema. Si la instalación fue exitosa, deberías ver el nombre y la versión del paquete.
+
+> **Nota RHEL 8/9:** `dnf install ftp://server1.example.com/pub/updates/zsh-*.rpm` instala el paquete y
+> resuelve sus dependencias desde los repositorios configurados; `rpm -ivh` no las resuelve. El cliente
+> `ftp` puede no venir instalado (`dnf install ftp`).

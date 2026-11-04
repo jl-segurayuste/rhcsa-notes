@@ -70,3 +70,13 @@ ServerName station.domain40.example.com
 - `<VirtualHost 192.168.0.254:80>`: Inicia la definición del virtual host.
 - `DocumentRoot /var/www/html/`: Especifica el directorio raíz de documentos para este virtual host.
 - `ServerName station.domain40.example.com`: Asigna el nombre del servidor que se utilizará para acceder a este virtual host.
+
+> **Nota RHEL 8/9 (Apache 2.4):**
+>
+> - `chkconfig httpd on` → `systemctl enable --now httpd`, y abrir el cortafuegos:
+>   `firewall-cmd --permanent --add-service=http && firewall-cmd --reload`.
+> - `NameVirtualHost` ya no existe (Apache 2.4 solo avisa de que no tiene efecto): basta el bloque
+>   `<VirtualHost …>`, mejor en un fichero propio como `/etc/httpd/conf.d/station.conf`.
+> - Comprueba la sintaxis con `apachectl configtest` antes de reiniciar.
+> - Un fichero copiado con `mv` desde otra carpeta conserva su contexto SELinux y httpd no lo puede servir:
+>   `restorecon -Rv /var/www/html` (con `cp` o `wget` dentro de la carpeta ya hereda el correcto).

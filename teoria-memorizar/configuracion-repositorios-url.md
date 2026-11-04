@@ -14,12 +14,12 @@ Configura un cliente YUM/DNF con el comando `dnf config-manager` para añadir re
 
    Esto creará automáticamente un archivo de configuración para el repositorio en `/etc/yum.repos.d/`.
 
-2. **Añadir el repositorio AppStream de RHEL 7.0**
+2. **Añadir el repositorio AppStream de RHEL 8.2**
 
    Similar al paso anterior, añade el repositorio AppStream:
 
    ```bash
-   sudo dnf config-manager --add-repo=http://content.example.com/rhel7.0/x86_64/dvd/AppStream
+   sudo dnf config-manager --add-repo=http://content.example.com/rhel8.2/x86_64/dvd/AppStream
    ```
 
 3. **Verificar los repositorios configurados**
@@ -35,7 +35,7 @@ Configura un cliente YUM/DNF con el comando `dnf config-manager` para añadir re
    ```text
    repo id                                              repo name
    content.example.com_rhel8.2_x86_64_dvd_BaseOS        content.example.com_rhel8.2_x86_64_dvd_BaseOS
-   content.example.com_rhel7.0_x86_64_dvd_AppStream     content.example.com_rhel7.0_x86_64_dvd_AppStream
+   content.example.com_rhel8.2_x86_64_dvd_AppStream     content.example.com_rhel8.2_x86_64_dvd_AppStream
    ```
 
 4. **Probar los repositorios**
@@ -52,7 +52,7 @@ Configura un cliente YUM/DNF con el comando `dnf config-manager` para añadir re
 
    ```text
    /etc/yum.repos.d/content.example.com_rhel8.2_x86_64_dvd_BaseOS.repo
-   /etc/yum.repos.d/content.example.com_rhel7.0_x86_64_dvd_AppStream.repo
+   /etc/yum.repos.d/content.example.com_rhel8.2_x86_64_dvd_AppStream.repo
    ```
 
    Por ejemplo, puedes establecer la prioridad añadiendo:
@@ -68,3 +68,11 @@ Configura un cliente YUM/DNF con el comando `dnf config-manager` para añadir re
    ```bash
    sudo dnf makecache
    ```
+
+> **Ojo con GPG:** `dnf config-manager --add-repo` crea el `.repo` sin clave. Al instalar, dnf comprueba la
+> firma y falla («GPG check FAILED» / «Public key … is not installed») si no se importa la clave:
+> `rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release`. En el examen, si el enunciado lo permite, se
+> añade `gpgcheck=0` a cada sección del `.repo`.
+>
+> (Antes estas notas mezclaban `rhel8.2/BaseOS` con `rhel7.0/AppStream`: RHEL 7 no tiene AppStream.)
+

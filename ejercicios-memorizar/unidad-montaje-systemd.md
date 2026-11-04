@@ -91,3 +91,8 @@ systemctl status mnt-data.mount
 ```
 
 Esto te indicará si el sistema de archivos ha sido montado correctamente o si hubo algún error.
+
+> **Consejos:** el nombre del fichero tiene que corresponder a `Where` (`/mnt/data` → `mnt-data.mount`;
+> `systemd-escape -p --suffix=mount /mnt/data` lo calcula). Para un disco local sobra
+> `After=network.target`, y es más robusto `What=/dev/disk/by-uuid/<UUID>` (`blkid`) que `/dev/sdb1`,
+> cuyo nombre puede cambiar entre arranques.
