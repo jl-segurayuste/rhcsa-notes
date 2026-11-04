@@ -915,149 +915,67 @@ curl http://localhost
 - **`firewall-cmd`**: Opens the firewall for HTTP traffic.
 - **`curl`**: Tests the HTTP response from the server.
 
-## 13. Contenedor Podman MariaDB
+## 13. Contenedor Podman MariaDB (servicio del sistema)
 
-> **Atención:** esta subpágina está marcada en rojo en Notion (posible ejercicio incompleto o revisado con dudas).
-
-### 1. Pull del contenedor MariaDB
-
-```bash
-podman pull docker.io/library/mariadb
-```
-
-Correcto, el comando descarga la imagen oficial de MariaDB desde Docker Hub. Es una buena práctica utilizar la imagen oficial, ya que es mantenida y actualizada regularmente.
-
-### 2. Creación del directorio para almacenamiento persistente
+Contenedor de **root**, gestionado por el systemd del sistema: todo con `sudo` (root no ve los contenedores
+de otros usuarios, ni al revés).
 
 ```bash
 sudo mkdir -p /var/mariadb-container
-```
+sudo podman run -d --name mariadb-container -p 3306:3306 \
+    -v /var/mariadb-container:/var/lib/mysql:Z \
+    -e MARIADB_ROOT_PASSWORD=cambia_esta_clave \
+    docker.io/library/mariadb
+sudo podman ps                                     # en marcha
+sudo firewall-cmd --permanent --add-port=3306/tcp && sudo firewall-cmd --reload
 
-Perfecto. Es importante crear un directorio en el host para almacenar de manera persistente los datos de la base de datos.
-
-### 3. Configuración del contexto de SELinux
-
-```bash
-sudo semanage fcontext -a -t container_file_t "/var/mariadb-container(/.*)?"
-sudo restorecon -Rv /var/mariadb-container
-sudo semanage port -a -t container_port_t -p tcp 3306
-```
-
-- **SELinux**: El comando `semanage` ajusta el contexto de SELinux para permitir que el contenedor acceda correctamente a los archivos en `/var/mariadb-container`. Luego, `restorecon` aplica este contexto de manera recursiva.
-- **Recomendación**: Esta es una buena práctica, pero asegúrate de tener el paquete `policycoreutils-python-utils` instalado para usar `semanage`.
-
-Si el puerto ya está configurado, aparecerá un error. En ese caso, puedes verificarlo con:
-
-```bash
-sudo semanage port -l | grep 3306
-```
-
-> **Nota:** Si no sabes qué tipo de etiqueta o configuración usar, puedes buscar configuraciones relacionadas con contenedores o cualquier otra categoría mediante los comandos:
->
-> - **Listar todas las etiquetas de archivo disponibles**:
->
-> ```bash
-> sudo semanage fcontext -l | grep container
-> ```
->
-> Esto te mostrará etiquetas como `container_file_t`, `container_var_lib_t`, etc.
->
-> - **Listar todos los puertos configurados para contenedores**:
->
-> ```bash
-> sudo semanage port -l | grep container
-> ```
->
-> Esto ayuda a identificar qué puertos están permitidos para contenedores.
->
-> - **Ver detalles de otras configuraciones de SELinux para contenedores**:
->
-> ```bash
-> sudo semanage boolean -l | grep container
-> ```
-
-### Configuración del firewall para permitir tráfico de MariaDB
-
-```bash
-sudo firewall-cmd --permanent --add-port=3306/tcp
-sudo firewall-cmd --reload
-```
-
-### Ejecución del contenedor con configuración adecuada
-
-```bash
-podman run -d \
-  --name mariadb-container \
-  -p 3306:3306 \
-  -v /var/mariadb-container:/var/lib/mysql:Z \
-  -e MARIADB_ROOT_PASSWORD=your_secure_root_password \
-  mariadb
-```
-
-- **`-v /var/mariadb-container:/var/lib/mysql:Z`**: El uso de `:Z` es clave, ya que le indica a SELinux que cambie el contexto de seguridad de los archivos montados para que el contenedor pueda acceder a ellos.
-
-**Hacer que el contenedor se inicie automáticamente al arrancar el sistema:** genera un archivo `systemd` para el contenedor:
-
-```bash
-sudo podman generate systemd --name mariadb-container --restart-policy always > /etc/systemd/system/container-mariadb-container.service
+# Servicio del sistema
+cd /etc/systemd/system
+sudo podman generate systemd --new --files --name mariadb-container
+sudo podman rm -f mariadb-container                # con --new el servicio crea el suyo
+sudo systemctl daemon-reload
 sudo systemctl enable --now container-mariadb-container.service
 ```
 
-## 14. Systemd user container
+- `:Z` pone el contexto `container_file_t` al directorio; no hace falta `semanage fcontext`.
+- No hace falta `semanage port`: publicar un puerto con podman no lo bloquea SELinux (y el 3306 ya está
+  definido como `mysqld_port_t`, así que `-a` daría error).
+- Versiones anteriores de estas notas lanzaban el contenedor sin `sudo` y generaban el servicio con
+  `sudo`: root no encuentra ese contenedor y el paso falla.
 
-> **Atención:** esta subpágina está marcada en rojo en Notion (posible ejercicio incompleto o revisado con dudas).
+## 14. Systemd user container
 
 ### Ejercicio 16: "Configure your system such that the container is automatically started as a Systemd user container"
 
-### Lo que solicita:
-
-- **Reutilizar** el contenedor creado en el ejercicio 15.
-- Configurarlo para que se ejecute como un **Systemd user container**, es decir, gestionado a nivel de usuario, no del sistema global.
-- El contenedor debe iniciarse automáticamente cuando el usuario inicia sesión.
-
-### Cómo realizarlo:
-
-### Ejecución del contenedor con configuración adecuada
+Ahora el contenedor es de un **usuario normal** y lo gestiona su `systemd --user`. Usa su propio
+directorio de datos: dos MariaDB sobre el mismo directorio lo corromperían.
 
 ```bash
-sudo podman run -d --name mariadb-student \
-    -e MYSQL_ROOT_PASSWORD=root_password \
-    -v /var/mariadb-container:/var/lib/mysql:Z \
-    -p 3307:3306 \
-    mariadb
-```
+# Como root
+sudo loginctl enable-linger student                 # que arranque aunque student no inicie sesión
 
-- **`-v /var/mariadb-container:/var/lib/mysql:Z`**: El uso de `:Z` es clave, ya que le indica a SELinux que cambie el contexto de seguridad de los archivos montados para que el contenedor pueda acceder a ellos.
-
-1. **Reconfigurar el contenedor como un servicio de usuario:** a diferencia del ejercicio 15, aquí no necesitas un archivo `systemd` global en `/etc/systemd/system`. Generarás un archivo para el usuario:
-
-```bash
-podman generate systemd --name mariadb-student --files
-```
-
-> **Nota:** Este archivo se guarda en el directorio de configuración del usuario (`~/.config/systemd/user/`), lo que hace que sea un servicio administrado por el usuario. Si la ruta no está creada habría que crearla.
-
-2. **Habilitar el servicio del usuario:** habilita y arranca el servicio como usuario:
-
-```bash
+# Como student, en una sesión real (ssh o machinectl shell; con su/sudo -u no hay systemctl --user)
+ssh student@localhost
+mkdir -p ~/mariadb-data
+podman run -d --name mariadb-student -p 3307:3306 \
+    -v ~/mariadb-data:/var/lib/mysql:Z \
+    -e MARIADB_ROOT_PASSWORD=cambia_esta_clave \
+    docker.io/library/mariadb
+mkdir -p ~/.config/systemd/user && cd ~/.config/systemd/user
+podman generate systemd --new --files --name mariadb-student
+podman rm -f mariadb-student
+systemctl --user daemon-reload
 systemctl --user enable --now container-mariadb-student.service
 ```
 
-   Esto asegura que el contenedor se inicie automáticamente cada vez que el usuario inicia sesión.
+En RHEL 9.4+ y RHEL 10 se puede hacer lo mismo con Quadlet: ver
+[`crear-contenedor-http-servicio-sistema.md`](../ejercicios-memorizar/crear-contenedor-http-servicio-sistema.md).
 
-3. **Permitir servicios de usuario persistentes:** asegúrate de habilitar **lingering** para el usuario si deseas que el contenedor funcione incluso sin una sesión activa:
+### Resumen de diferencias
 
-```bash
-sudo loginctl enable-linger $USER
-```
-
-### Resumen de diferencias:
-
-| Aspecto | Ejercicio 15 | Ejercicio 16 |
+| Aspecto | Ejercicio 15 (sección 13) | Ejercicio 16 (sección 14) |
 |---|---|---|
-| **Alcance del servicio** | Servicio gestionado por el sistema (global) | Servicio gestionado por el usuario (local) |
-| **Archivo systemd generado** | `/etc/systemd/system/` | `~/.config/systemd/user/` |
-| **Inicio automático** | Al iniciar el sistema | Al iniciar sesión del usuario (o con lingering) |
-| **Quién lo gestiona** | `systemctl` (global) | `systemctl --user` (usuario) |
-
-Ambos ejercicios solicitan que el contenedor se ejecute automáticamente, pero el **alcance** de la configuración es lo que marca la diferencia.
+| **Dueño del contenedor** | root (`sudo podman …`) | el usuario (`podman …` sin sudo) |
+| **Archivo de servicio** | `/etc/systemd/system/` | `~/.config/systemd/user/` |
+| **Se gestiona con** | `systemctl` | `systemctl --user` |
+| **Arranca** | Con el sistema | Con el sistema si tiene *lingering*; si no, al iniciar sesión el usuario |
