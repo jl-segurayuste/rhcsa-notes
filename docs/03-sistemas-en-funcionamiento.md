@@ -160,9 +160,9 @@ Significado de cada parámetro:
 5. **`GRUB_TERMINAL_OUTPUT="console"`**: establece la salida del terminal de GRUB en la consola. Útil para servidores y sistemas sin interfaz gráfica durante el arranque.
 6. **`GRUB_CMDLINE_LINUX="crashkernel=auto rd.lvm.lv=rootvg/rootlv rd.lvm.lv=rootvg/swaplv rd.lvm.lv=rootvg/usrlv rhgb quiet"`**: especifica las opciones de la línea de comandos del kernel:
    - `crashkernel=auto`: configura automáticamente el tamaño de la memoria reservada para el kernel de rescate.
-   - `rd.lvm.lv=rootvg/rootlv`: indica que el volumen lógico `rootlv` en el grupo de volúmenes `rootvg` se debe montar como raíz (`/`).
-   - `rd.lvm.lv=rootvg/swaplv`: indica que el volumen lógico `swaplv` en el grupo de volúmenes `rootvg` se debe usar como swap.
-   - `rd.lvm.lv=rootvg/usrlv`: indica que el volumen lógico `usrlv` en el grupo de volúmenes `rootvg` se debe montar como `/usr`.
+   - `rd.lvm.lv=rootvg/rootlv`: le dice al initramfs (dracut) que active el volumen lógico `rootlv` de `rootvg` durante el arranque. Cuál es la raíz lo indica `root=` (en las entradas BLS); `rd.lvm.lv` solo lo activa.
+   - `rd.lvm.lv=rootvg/swaplv`: activa también el volumen de swap en el initramfs (necesario para hibernar).
+   - `rd.lvm.lv=rootvg/usrlv`: activa el volumen de `/usr`, que tiene que estar disponible antes de pasar al sistema real.
    - `rhgb`: habilita el Red Hat Graphical Boot.
    - `quiet`: reduce la cantidad de mensajes de arranque que se muestran en la consola.
 7. **`GRUB_DISABLE_RECOVERY="true"`**: si está configurado como `true`, deshabilita la opción de recuperación en el menú de GRUB (no se mostrarán entradas de menú para modos de recuperación).
@@ -192,8 +192,18 @@ En este archivo puedes ajustar diversas configuraciones, como el tiempo de esper
 ### 3. Aplicar cambios y actualizar GRUB
 
 ```shell
-sudo grub2-mkconfig -o /boot/grub2/grub.cfg   # Para RHEL/CentOS versiones antiguas
-sudo grub2-mkconfig -o /boot/grub/grub.cfg    # Para RHEL/CentOS versiones recientes y Fedora
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg                # BIOS; también UEFI en RHEL 9.3+ y RHEL 10
+sudo grub2-mkconfig -o /boot/efi/EFI/redhat/grub.cfg       # UEFI en RHEL 8 (y RHEL 9 antes de la 9.3)
+```
+
+`/boot/grub/grub.cfg` (sin el 2) es la ruta de Debian/Ubuntu, no de RHEL. Para cambiar solo los
+argumentos del kernel, en RHEL 8+ (entradas BLS) lo recomendado es `grubby`, que no necesita regenerar
+`grub.cfg`:
+
+```shell
+sudo grubby --update-kernel=ALL --args="quiet"         # añadir a todos los kernels
+sudo grubby --update-kernel=ALL --remove-args="rhgb"   # quitar
+sudo grubby --info=DEFAULT                             # comprobar
 ```
 
 ### 4. Instalar GRUB en el sector de arranque del disco
@@ -201,9 +211,11 @@ sudo grub2-mkconfig -o /boot/grub/grub.cfg    # Para RHEL/CentOS versiones recie
 Si necesitas reinstalar GRUB en el sector de arranque del disco (reemplaza `/dev/sdX` con la identificación de tu disco de arranque):
 
 ```shell
-sudo grub2-install /dev/sdX   # Para RHEL/CentOS versiones antiguas
-sudo grub-install /dev/sdX    # Para RHEL/CentOS versiones recientes y Fedora
+sudo grub2-install /dev/sdX   # Solo en arranque BIOS (en RHEL la orden es siempre grub2-install)
 ```
+
+En UEFI no se usa `grub2-install`: se reinstalan los paquetes `grub2-efi-x64` y `shim-x64`
+(`dnf reinstall grub2-efi-x64 shim-x64`). `grub-install` (sin el 2) es de Debian/Ubuntu.
 
 ### 5. Verificar la configuración
 
@@ -527,20 +539,24 @@ Mientras se ejecuta, presiona `Ctrl-Z`; el proceso pasará al estado "Stopped" h
 **Estado "Zombie" (Z):**
 
 ```shell
-echo -e '#!/bin/bash\nsleep 5 &' > zombie_script.sh
-chmod +x zombie_script.sh
-./zombie_script.sh
+bash -c 'sleep 1 & exec sleep 30' &
+sleep 2; ps -eo pid,ppid,stat,cmd | awk '$3 ~ /^Z/'     # [sleep] <defunct>
 ```
 
-Después de 5 segundos, el proceso hijo habrá terminado, pero el proceso padre no habrá recogido su estado, convirtiéndolo en zombi.
+El hijo (`sleep 1`) termina al segundo, pero su padre se ha sustituido con `exec sleep 30`, que no
+recoge el estado de sus hijos: el hijo queda como zombi hasta que el padre termina. (Un script que lanza
+`sleep 5 &` y acaba no deja zombi: el hijo queda huérfano, lo adopta systemd y lo recoge.) Un zombi no se
+mata con `kill`: hay que terminar o reiniciar a su padre.
 
 ### Cómo verificar y gestionar estados
 
 Verificar procesos zombis con `ps`:
 
 ```shell
-ps aux | grep 'Z'
+ps -eo pid,ppid,stat,cmd | awk '$3 ~ /^Z/'
 ```
+
+(`ps aux | grep Z` también encuentra cualquier línea con una Z mayúscula, no solo los zombis.)
 
 Gestionar procesos:
 
@@ -707,7 +723,7 @@ sudo reboot
 - **`/etc/security/limits.conf`**: establece límites de recursos para usuarios y procesos.
 - **`/etc/sysctl.conf` o `/etc/sysctl.d/`**: contienen configuraciones relacionadas con el kernel y el rendimiento del sistema.
 - **`/etc/security/limits.d/`**: al igual que `limits.conf`, permite establecer límites de recursos.
-- **`/etc/security/namespace.conf`**: configura las restricciones de los espacios de nombres de contenedores (si aplicable).
+- **`/etc/security/namespace.conf`**: directorios polinstanciados de `pam_namespace` (por ejemplo, un `/tmp` privado por usuario); no tiene que ver con contenedores.
 
 Ajustar parámetros del sistema puede tener un impacto significativo en el rendimiento y la estabilidad, así que comprende su efecto antes de realizar cambios.
 
@@ -723,16 +739,16 @@ Los archivos de unidad (unit files) pueden existir en múltiples directorios:
 
 **Precedencia** (cuando un archivo de unidad con el mismo nombre existe en más de un directorio):
 
-- **Más alta precedencia: `/run/systemd/system`** — usado generalmente para configuraciones temporales, ya que el contenido de `/run` suele recrearse en cada arranque.
-- **Segunda precedencia: `/etc/systemd/system`** — usado para configuraciones personalizadas y específicas del administrador del sistema.
-- **Más baja precedencia: `/usr/lib/systemd/system`** — contiene las configuraciones predeterminadas instaladas por los paquetes de software del sistema.
+- **Más alta precedencia: `/etc/systemd/system`** — configuraciones del administrador; mandan sobre todo lo demás.
+- **Segunda precedencia: `/run/systemd/system`** — unidades de tiempo de ejecución (se pierden al reiniciar).
+- **Más baja precedencia: `/usr/lib/systemd/system`** — las que instalan los paquetes.
 
-**Ejemplo práctico:** si `example.service` existe en los tres directorios, systemd buscará primero en `/run/systemd/system/example.service`, luego en `/etc/systemd/system/example.service`, y finalmente en `/usr/lib/systemd/system/example.service`.
+**Ejemplo práctico:** si `example.service` existe en los tres directorios, systemd usa el de `/etc/systemd/system`. Por eso, para cambiar una unidad de un paquete se copia a `/etc/systemd/system` (o se usa `systemctl edit`, que crea un *drop-in* en `/etc/systemd/system/example.service.d/`) y nunca se edita la de `/usr/lib`.
 
-Resumen: precedencia `/run` > `/etc` > `/usr/lib`.
+Resumen: precedencia `/etc` > `/run` > `/usr/lib` (`systemd-analyze unit-paths` muestra el orden exacto).
 
-- `/run`: configuraciones temporales y generadas en el arranque.
 - `/etc`: configuraciones personalizadas por el administrador del sistema.
+- `/run`: configuraciones temporales y generadas en el arranque.
 - `/usr/lib`: configuraciones predeterminadas proporcionadas por el sistema.
 
 ## Archivos de unidad de servicio de Systemd (Systemd Service Unit)
@@ -991,10 +1007,12 @@ Los diarios del sistema pueden variar según la distribución y la configuració
 
 ### Utilizando archivos syslog
 
-Los archivos syslog pueden ubicarse en `/var/log` y tener nombres como `syslog`, `messages`, `auth.log`, etc. Puedes usar `cat`, `tail` o `less` para verlos:
+En RHEL rsyslog escribe en `/var/log/messages` (general), `/var/log/secure` (autenticación),
+`/var/log/maillog`, `/var/log/cron` y `/var/log/boot.log`. Los nombres `syslog` y `auth.log` son de
+Debian/Ubuntu. Puedes usar `cat`, `tail` o `less` para verlos:
 
 ```shell
-cat /var/log/syslog
+sudo tail -f /var/log/messages
 ```
 
 ### Reading Log Files — archivos de registro más comunes
@@ -1098,7 +1116,7 @@ Estas prioridades se utilizan en la configuración de `rsyslogd` para definir c�
    - **`SyncIntervalSec=5m`**: establece el intervalo de sincronización de registros en disco (en este caso, cada 5 minutos).
    - **`RateLimitInterval=30s`** y **`RateLimitBurst=1000`**: controlan el límite de velocidad para la escritura de registros.
    - **`SystemMaxUse=`, `SystemKeepFree=`, `SystemMaxFileSize=`**: controlan el uso máximo de espacio en disco para registros del sistema, la cantidad mínima de espacio libre y el tamaño máximo de un archivo de registro.
-   - **`RuntimeMaxUse=`, `RuntimeKeepFree=`, `RuntimeMaxFileSize=`**: similar a las anteriores pero para registros de tiempo de ejecución (sesiones de usuario).
+   - **`RuntimeMaxUse=`, `RuntimeKeepFree=`, `RuntimeMaxFileSize=`**: lo mismo, pero para el diario volátil de `/run/log/journal` (el que se usa cuando el almacenamiento no es persistente y se pierde al reiniciar).
    - **`MaxRetentionSec=`**: define el tiempo máximo que se retendrán los registros en el sistema.
    - **`MaxFileSec=1month`**: define el tiempo después del cual se cerrará un archivo de registro.
    - **`ForwardToSyslog=yes`, `ForwardToKMsg=no`, `ForwardToConsole=no`, `ForwardToWall=yes`**: controlan si los registros se deben reenviar a otros destinos (syslog, kmsg, consola, wall).
@@ -1122,7 +1140,7 @@ cat /etc/logrotate.conf
 
 ### Configurar rotación de archivos
 
-Puedes agregar configuraciones específicas para archivos de registro en `/etc/logrotate.d/`. Por ejemplo, para `/var/log/syslog`:
+Puedes agregar configuraciones específicas para archivos de registro en `/etc/logrotate.d/`. En RHEL la de los logs de rsyslog (`/var/log/messages`, `secure`, `maillog`…) es `/etc/logrotate.d/rsyslog`; los ejemplos de abajo (`syslog`, `su root adm`, `www-data`) vienen de Debian/Ubuntu, donde se llaman así:
 
 ```shell
 sudo nano /etc/logrotate.d/syslog
@@ -1255,7 +1273,7 @@ sudo systemctl start nombre_del_servicio
 Ejemplo (SSH):
 
 ```shell
-sudo systemctl start ssh
+sudo systemctl start sshd
 ```
 
 **Detener un servicio de red:**
@@ -1267,7 +1285,7 @@ sudo systemctl stop nombre_del_servicio
 Ejemplo:
 
 ```shell
-sudo systemctl stop ssh
+sudo systemctl stop sshd
 ```
 
 **Verificar el estado de un servicio de red:**
@@ -1279,7 +1297,7 @@ sudo systemctl status nombre_del_servicio
 Ejemplo:
 
 ```shell
-sudo systemctl status ssh
+sudo systemctl status sshd
 ```
 
 **Ejemplos adicionales:**
@@ -1358,7 +1376,7 @@ Estos comandos asumen que tienes un servidor SSH configurado en el sistema remot
 | `-p` | Preserva permisos. |
 | `-n` | Realiza solo una simulación ("dry run"), sin sincronizar realmente nada. |
 | `-a` | Usa el modo archivo, asegurando que se sincronicen árboles de subdirectorios completos y todas las propiedades de los archivos. |
-| `-A` | Usa el modo archivo y, además, sincroniza las listas de control de acceso (ACL). |
+| `-A` | Conserva las listas de control de acceso (ACL). `-a` no las incluye, por eso se combina como `-aAX`. |
 | `-X` | Sincroniza el contexto SELinux también. |
 
 ### Ejemplos básicos
