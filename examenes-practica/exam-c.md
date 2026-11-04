@@ -182,7 +182,7 @@ minlen = 6
 
 **2. Configurar PAM para respetar estas políticas**
 
-Edita el archivo `/etc/pam.d/system-auth` o `/etc/pam.d/password-auth` y verifica que la línea con `pam_pwquality.so` esté configurada correctamente. Por ejemplo:
+Comprueba (sin editarlos: en RHEL 8/9 los genera `authselect` y los cambios a mano se pierden) que `/etc/pam.d/system-auth` y `/etc/pam.d/password-auth` incluyen `pam_pwquality.so`. Por ejemplo:
 
 ```text
 password    requisite     pam_pwquality.so retry=3
@@ -391,28 +391,27 @@ sudo chmod g+s /groups/account
 
    - **`g+s` (SetGID)**: Asegura que los archivos y subdirectorios creados en estos directorios hereden el grupo del directorio principal.
 
-### 3. Configurar ACLs para los permisos adicionales
+### 3. Bit sticky y dueño del directorio
 
-1. **Permitir a los miembros del grupo eliminar solo sus propios archivos**: no se necesitan configuraciones adicionales aquí; este comportamiento es predeterminado en sistemas Linux.
-2. **Otorgar a Alex permisos especiales para eliminar archivos de todos los usuarios**:
-   - **Permitir a Alex acceso total al directorio `sales`**:
-
-```bash
-sudo setfacl -m u:alex:rwx /groups/sales
-```
-
-   - **Configurar permisos por defecto para futuros archivos creados en `sales`**:
+1. **Permitir a los miembros del grupo eliminar solo sus propios archivos**: esto **no** es el comportamiento
+   predeterminado. Con el grupo con `rwx` sobre el directorio, cualquier miembro puede borrar los ficheros
+   de los demás (borrar depende de los permisos del directorio, no del fichero). Hace falta el bit *sticky*:
 
 ```bash
-sudo setfacl -d -m u:alex:rwx /groups/sales
+sudo chmod +t /groups/sales /groups/account      # queda drwxrws--T
 ```
 
-   - **Repetir para el directorio `account`**:
+2. **Otorgar a Alex permisos especiales para eliminar archivos de todos los usuarios**: con el bit sticky,
+   solo pueden borrar un fichero su dueño, el **dueño del directorio** y root. Una ACL `u:alex:rwx` no sirve
+   para esto: da permiso de escritura en el directorio, pero el sticky sigue impidiéndole borrar lo ajeno.
+   La forma de conseguirlo es que alex sea el dueño de los directorios:
 
 ```bash
-sudo setfacl -m u:alex:rwx /groups/account
-sudo setfacl -d -m u:alex:rwx /groups/account
+sudo chown alex /groups/sales /groups/account    # el grupo (sales/account) no cambia
 ```
+
+   Comprobación: crea un fichero como otro miembro del grupo y bórralo como `alex` (debe poder) y como un
+   tercer miembro (debe dar `Operation not permitted`).
 
 ### 4. Verificar la configuración
 
@@ -422,7 +421,7 @@ sudo setfacl -d -m u:alex:rwx /groups/account
 ls -ld /groups/sales /groups/account
 ```
 
-2. **Verificar las ACLs**:
+2. **Verificar los permisos y las ACLs**:
 
 ```bash
 getfacl /groups/sales
@@ -435,9 +434,9 @@ getfacl /groups/account
 - **`chgrp <grupo> <directorio>`**: Cambia el grupo propietario de un directorio.
 - **`chmod 770`**: Configura permisos de lectura, escritura y ejecución para el propietario y grupo, sin acceso para otros.
 - **`chmod g+s`**: Habilita el bit SetGID para heredar el grupo.
-- **`setfacl -m u:alex:rwx <directorio>`**: Asigna permisos específicos al usuario Alex para acceder y modificar los archivos.
-- **`setfacl -d`**: Establece permisos por defecto para futuros archivos creados en el directorio.
-- **`getfacl`**: Muestra las ACL configuradas en el directorio.
+- **`chmod +t`**: Bit sticky: en el directorio, cada usuario solo puede borrar sus propios ficheros.
+- **`chown alex <directorio>`**: El dueño del directorio puede borrar cualquier fichero aunque esté el bit sticky.
+- **`getfacl`**: Muestra los permisos y las ACL del directorio.
 
 ### Resultados finales
 

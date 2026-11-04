@@ -273,6 +273,10 @@ lvcreate -n lvnombre -L 100M vg
 >   lvresize -L -20G /dev/myvg/mylv  # Reduce el tamaño por 20 GB
 >   ```
 >
+> **Cuidado al reducir:** sin `-r`, `lvresize -L -20G` recorta el volumen sin tocar el sistema de archivos y lo
+> deja corrupto si los datos ocupaban esa zona. Usa siempre `lvresize -r -L -20G …` (reduce primero el
+> sistema de archivos y luego el volumen). Con XFS no se puede reducir: `-r` falla y no cambia nada.
+>
 > **Resumen:** mientras `lvextend` está especializado únicamente en la expansión de volúmenes lógicos, `lvresize` ofrece una funcionalidad más amplia, pudiendo tanto aumentar como reducir el tamaño de un volumen lógico. Esto hace que `lvresize` sea una herramienta más flexible y a menudo preferida cuando se trabaja en la administración de espacio en LVM.
 
 **Ajustar el sistema de archivos** (después de extender el volumen lógico, necesitas ajustar el sistema de archivos para usar el nuevo espacio):

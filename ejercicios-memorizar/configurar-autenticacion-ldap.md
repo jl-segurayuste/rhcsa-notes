@@ -45,25 +45,23 @@ Este comando debería devolver la información de la cuenta de usuario `ldapuser
 >
 > Sin embargo, en sistemas más recientes, la configuración de la autenticación y la integración con LDAP generalmente se realiza manualmente a través de la edición de archivos de configuración y la instalación de paquetes necesarios. Aquí te doy un ejemplo de cómo podrías configurar la autenticación LDAP manualmente en un sistema basado en RHEL 8 o similar.
 
-## Configuración manual de autenticación LDAP en RHEL 8
+## Configuración manual de autenticación LDAP en RHEL 8 y 9
+
+> LDAP no figura en los objetivos actuales del EX200 (RHEL 9), pero aparece en exámenes de práctica antiguos.
+> En RHEL 8/9 ya no existen `system-config-authentication`, `authconfig` ni el paquete `pam_ldap`: la
+> autenticación la hace SSSD y los ficheros de PAM los gestiona `authselect` (no se editan a mano).
 
 ### 1. Instalación de paquetes necesarios
 
-Asegúrate de tener instalados los paquetes necesarios para la autenticación LDAP:
-
 ```bash
-sudo yum install -y sssd sssd-client krb5-workstation pam_ldap
+sudo dnf install -y sssd sssd-ldap oddjob-mkhomedir
 ```
 
-### 2. Configuración de SSSD (System Security Services Daemon)
-
-Editar el archivo de configuración de SSSD para configurar la autenticación LDAP:
+### 2. Configuración de SSSD
 
 ```bash
 sudo vim /etc/sssd/sssd.conf
 ```
-
-Aquí tienes un ejemplo básico de configuración `sssd.conf` para autenticación LDAP:
 
 ```
 [sssd]
@@ -76,63 +74,49 @@ id_provider = ldap
 auth_provider = ldap
 ldap_uri = ldap://ldap.example.com
 ldap_search_base = dc=example,dc=com
-ldap_tls_reqcert = allow
+# Para validar contraseñas, SSSD exige un canal cifrado: StartTLS (o ldaps://) con el certificado de la CA
+ldap_id_use_start_tls = True
+ldap_tls_cacert = /etc/openldap/certs/ca.crt
+ldap_tls_reqcert = demand
+cache_credentials = True
 ```
 
-Asegúrate de ajustar los valores `ldap_uri`, `ldap_search_base` y otros parámetros según tu configuración LDAP específica.
+Ajusta `ldap_uri`, `ldap_search_base` y la ruta del certificado a tu entorno. Sin TLS, `getent passwd`
+funciona pero el inicio de sesión con contraseña falla.
 
-### 3. Configuración de PAM (Pluggable Authentication Modules)
-
-Editar el archivo de configuración de PAM para incluir soporte para autenticación LDAP:
+**Permisos obligatorios** (si no, `sssd` se niega a arrancar):
 
 ```bash
-sudo vim /etc/pam.d/system-auth
+sudo chown root:root /etc/sssd/sssd.conf
+sudo chmod 600 /etc/sssd/sssd.conf
 ```
 
-Agrega o modifica las líneas necesarias para usar LDAP para la autenticación:
+### 3. Certificado de la CA
 
-```
-auth        required      pam_env.so
-auth        sufficient    pam_unix.so nullok try_first_pass
-auth        requisite     pam_succeed_if.so uid >= 1000 quiet_success
-auth        sufficient    pam_sss.so use_first_pass
-auth        required      pam_deny.so
-
-account     required      pam_unix.so
-account     sufficient    pam_localuser.so
-account     sufficient    pam_succeed_if.so uid < 1000 quiet
-account     [default=bad success=ok user_unknown=ignore] pam_sss.so
-account     required      pam_permit.so
-
-password    requisite     pam_pwquality.so try_first_pass local_users_only retry=3 authtok_type=
-password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
-password    sufficient    pam_sss.so use_authtok
-password    required      pam_deny.so
-
-session     optional      pam_keyinit.so revoke
-session     required      pam_limits.so
-session     optional      pam_mkhomedir.so
-session     [success=1 default=ignore] pam_succeed_if.so service in crond quiet use_uid
-session     required      pam_unix.so
-```
-
-### 4. Descargar y configurar el certificado CA
-
-Descarga el certificado CA necesario desde el servidor LDAP y colócalo en un directorio seguro, como `/etc/pki/tls/certs/`.
-
-### 5. Reiniciar servicios y verificación
-
-Reinicia los servicios relevantes para aplicar los cambios:
+Descarga el certificado de la CA del servidor LDAP a la ruta indicada en `ldap_tls_cacert`, por ejemplo:
 
 ```bash
-sudo systemctl restart sssd
+sudo mkdir -p /etc/openldap/certs
+sudo curl -o /etc/openldap/certs/ca.crt http://servidor/ruta/ca.crt
 ```
 
-Verifica que la autenticación LDAP esté funcionando correctamente:
+### 4. PAM y NSS con `authselect`
+
+En RHEL 8/9 `/etc/pam.d/system-auth` es un enlace a un perfil de `authselect`: lo que se edite a mano se
+pierde en la siguiente actualización o al cambiar de perfil. Se selecciona el perfil de SSSD con creación
+automática del directorio personal:
 
 ```bash
-getent passwd ldapuser40
+sudo authselect select sssd with-mkhomedir --force
+sudo systemctl enable --now oddjobd     # crea el home en el primer inicio de sesión
 ```
 
-Este comando debería mostrar la entrada de usuario para `ldapuser40` recuperada desde el servidor LDAP.
+### 5. Arrancar SSSD y verificar
 
+```bash
+sudo systemctl enable --now sssd
+getent passwd ldapuser40        # el usuario se resuelve desde LDAP
+su - ldapuser40                 # el inicio de sesión funciona (y se crea su home)
+```
+
+Si algo falla: `journalctl -u sssd` y `sssctl config-check`.

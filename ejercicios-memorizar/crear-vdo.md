@@ -61,8 +61,12 @@ Para agregar un nuevo disco virtual de 10 GiB a tu máquina virtual, crear un vo
 3. **Añadir la entrada al `/etc/fstab`** para que el montaje sea persistente:
 
    ```bash
-   echo "/dev/mapper/myvdo /mnt/myvdo xfs defaults 0 0" | sudo tee -a /etc/fstab
+   echo "/dev/mapper/myvdo /mnt/myvdo xfs defaults,x-systemd.requires=vdo.service 0 0" | sudo tee -a /etc/fstab
    ```
+
+   `x-systemd.requires=vdo.service` hace que el montaje espere a que el servicio `vdo` cree el dispositivo.
+   Sin esa opción, en el arranque `/dev/mapper/myvdo` aún no existe y el sistema puede quedarse en el modo
+   de emergencia. Comprueba la línea antes de reiniciar con `sudo mount -a` (o `findmnt --verify`).
 
 ## Explicación de los comandos
 
@@ -75,7 +79,7 @@ Para agregar un nuevo disco virtual de 10 GiB a tu máquina virtual, crear un vo
 - **`mkfs.xfs -K /dev/mapper/myvdo`**: formatea el volumen VDO con el sistema de archivos XFS.
 - **`mkdir /mnt/myvdo`**: crea un directorio para montar el volumen VDO.
 - **`mount /dev/mapper/myvdo /mnt/myvdo`**: monta el volumen VDO en el directorio creado.
-- **`echo ... | tee -a /etc/fstab`**: añade la entrada al archivo `/etc/fstab` para que el volumen VDO se monte automáticamente al iniciar el sistema.
+- **`echo ... | tee -a /etc/fstab`**: añade la entrada al archivo `/etc/fstab` para que el volumen VDO se monte automáticamente al iniciar el sistema (con `x-systemd.requires=vdo.service`).
 
 ## Verificación
 
@@ -109,12 +113,16 @@ VDO (Virtual Data Optimizer) es una tecnología de Red Hat que se utiliza para o
 
 Aunque el disco físico tiene 10 GiB, el tamaño lógico del volumen VDO configurado (`--vdoLogicalSize=20G`) es de 20 GiB gracias a la deduplicación y compresión.
 
-> **Nota RHEL 8 vs RHEL 9:** este ejercicio usa el paquete `vdo` y el comando standalone `vdo create` (válidos en RHEL 8). En **RHEL 9** ese paquete y comando ya no existen — la gestión de VDO se integró en LVM. El equivalente en RHEL 9 es crear el volumen VDO con `lvcreate`, por ejemplo:
+> **Nota RHEL 8 vs RHEL 9:** este ejercicio usa el paquete `vdo` y el comando standalone `vdo create` (válidos en RHEL 8). En **RHEL 9** el comando `vdo create` (y el servicio `vdo`) ya no existen — la gestión de VDO se integró en LVM; el paquete `vdo` solo trae utilidades como `vdostats`. El equivalente en RHEL 9 es crear el volumen VDO con `lvcreate`, por ejemplo:
 >
 > ```bash
+> sudo dnf install -y lvm2 vdo kmod-kvdo     # en RHEL 9 «vdo» solo trae las utilidades para LVM
 > sudo vgcreate myvg /dev/sdb1
-> sudo lvcreate --type vdo -n myvdo -L 10G --virtualsize 20G myvg
+> sudo lvcreate --type vdo -n myvdo -l 100%FREE -V 20G myvg
 > sudo mkfs.xfs -K /dev/myvg/myvdo
+> echo "/dev/myvg/myvdo /mnt/myvdo xfs defaults 0 0" | sudo tee -a /etc/fstab
 > ```
 >
-> El resto de pasos (punto de montaje, `/etc/fstab`, verificación) son iguales.
+> `-l 100%FREE` usa todo el grupo: en un disco de 10 GiB, `-L 10G` falla porque LVM se reserva una parte
+> para sus metadatos. Con LVM-VDO el dispositivo es `/dev/myvg/myvdo` y el fstab no necesita
+> `x-systemd.requires=vdo.service` (lo activa LVM). El punto de montaje y la verificación son iguales.

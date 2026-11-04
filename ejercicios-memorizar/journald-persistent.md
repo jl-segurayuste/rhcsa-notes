@@ -32,4 +32,18 @@ Para hacer que el journal de systemd sea persistente tras el reinicio, ejecuta e
    killall -USR1 systemd-journald
    ```
 
-   La señal **SIGUSR1** no recarga la configuración de `systemd-journald` (eso sería `systemctl reload systemd-journald` o `SIGHUP`); lo que hace es indicarle que vuelque los datos del journal en memoria/runtime (`/run/log/journal`) al almacenamiento persistente que se acaba de crear en `/var/log/journal`, sin necesidad de reiniciar el servicio.
+   La señal **SIGUSR1** le indica a `systemd-journald` que vuelque el journal en memoria (`/run/log/journal`)
+   al directorio persistente recién creado, sin reiniciar el servicio. Es lo mismo que `journalctl --flush`.
+
+## Alternativa: `Storage=persistent`
+
+La otra forma (la de la documentación de Red Hat) es fijarlo en la configuración, que no depende de que exista
+el directorio:
+
+```bash
+sudo mkdir -p /etc/systemd/journald.conf.d
+printf '[Journal]\nStorage=persistent\n' | sudo tee /etc/systemd/journald.conf.d/persistent.conf
+sudo systemctl restart systemd-journald
+```
+
+Comprobación: `journalctl --list-boots` debe mostrar varios arranques después de reiniciar.

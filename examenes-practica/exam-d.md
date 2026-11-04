@@ -242,11 +242,11 @@ sudo chgrp data /groups/data
 Para que los miembros de cada grupo tengan permisos completos en su respectivo directorio, usamos `chmod` con `rwx` y el bit SGID (`s`) para que los archivos creados en el directorio hereden el grupo:
 
 ```bash
-sudo chmod 770 /groups/sales
-sudo chmod 770 /groups/data
+sudo chmod 2770 /groups/sales
+sudo chmod 2770 /groups/data
 ```
 
-- **Explicación:** El modo `770` establece permisos `rwxrws---`, donde:
+- **Explicación:** El modo `2770` establece permisos `rwxrws---` (el `2` inicial es el bit SGID; con `770` a secas queda `rwxrwx---` y los ficheros nuevos no heredan el grupo), donde:
   - `rwx` da acceso completo al propietario.
   - `rws` permite que los miembros del grupo tengan acceso completo y asegura que los archivos y directorios creados hereden el grupo.
   - `---` evita el acceso para los demás.
@@ -256,18 +256,22 @@ sudo chmod 770 /groups/data
 Queremos que `alex` tenga permisos de lectura en ambos directorios y pueda borrar archivos. Usamos `setfacl` (Access Control Lists) para configurar permisos adicionales:
 
 ```bash
-# Otorgar a alex permisos de lectura y borrado en el directorio /groups/sales
-sudo setfacl -m u:alex:r /groups/sales
-sudo setfacl -d -m u:alex:rw /groups/sales  # Permiso de lectura por defecto en archivos futuros
+# Directorio: rwx (r para listar, x para entrar, w+x para poder borrar ficheros dentro)
+sudo setfacl -m u:alex:rwx /groups/sales
+sudo setfacl -m u:alex:rwx /groups/data
 
-# Otorgar a alex permisos de lectura y borrado en el directorio /groups/data
-sudo setfacl -m u:alex:r /groups/data
-sudo setfacl -d -m u:alex:rw /groups/data  # Permiso de lectura por defecto en archivos futuros
+# Ficheros que se creen a partir de ahora: alex solo los lee
+sudo setfacl -d -m u:alex:r /groups/sales
+sudo setfacl -d -m u:alex:r /groups/data
+
+# Ficheros que ya existen: lectura (X mayúscula = x solo en subdirectorios)
+sudo setfacl -R -m u:alex:rX /groups/sales /groups/data
 ```
 
 - **Explicación:**
   - `setfacl -m u:alex:rwx` permite acceso total a `alex` para que pueda leer, escribir y borrar archivos en ambos directorios.
   - `setfacl -d -m u:alex:r` establece que, por defecto, `alex` tenga solo permisos de lectura en archivos nuevos, evitando escritura en archivos futuros.
+  - Borrar un fichero depende de los permisos del **directorio** (`w` y `x`), no de los del fichero: con solo `r` sobre el directorio, alex no podría ni entrar ni borrar. La contrapartida es que con `w` también puede crear ficheros; no se puede dar «borrar» sin dar «escribir en el directorio».
 
 ### Verificación
 

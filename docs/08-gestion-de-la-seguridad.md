@@ -730,14 +730,15 @@ Configura los tipos de contexto con las herramientas `semanage` y `restorecon`.
 
    Comando de ejemplo:
    ```shell
-   semanage fcontext -a -t httpd_sys_script_exec_t prueba_selinux/
+   semanage fcontext -a -t httpd_sys_script_exec_t '/var/www/prueba_selinux(/.*)?'
+   restorecon -Rv /var/www/prueba_selinux
    ```
    Este comando utiliza `semanage`, una herramienta de administración de políticas de SELinux, para agregar una regla de contexto de archivo. Aquí está lo que hace cada parte del comando:
    - `semanage`: Es el nombre de la herramienta de línea de comandos utilizada para administrar políticas de SELinux.
    - `fcontext`: Indica que queremos trabajar con las reglas de contexto de archivos.
-   - `a`: Es una opción que indica que queremos agregar una nueva regla de contexto.
-   - `t httpd_sys_script_exec_t`: Esta parte especifica el tipo de contexto que queremos asignar al archivo o directorio. En este caso, el tipo de contexto es `httpd_sys_script_exec_t`, que generalmente se usa para scripts CGI y otros archivos de script ejecutables para servidores web como Apache.
-   - `prueba_selinux/`: Es el nombre del archivo o directorio al que queremos aplicar el contexto especificado.
+   - `-a`: Es una opción que indica que queremos agregar una nueva regla de contexto.
+   - `-t httpd_sys_script_exec_t`: Esta parte especifica el tipo de contexto que queremos asignar al archivo o directorio. En este caso, el tipo de contexto es `httpd_sys_script_exec_t`, que generalmente se usa para scripts CGI y otros archivos de script ejecutables para servidores web como Apache.
+   - `'/var/www/prueba_selinux(/.*)?'`: La expresión regular de las rutas a las que se aplica: el directorio y todo lo que contiene. Tiene que ser una **ruta absoluta**: las reglas se comparan con la ruta completa del fichero, así que una ruta relativa (`prueba_selinux/`) no coincide nunca con nada y `restorecon` no cambia ningún contexto. Las comillas evitan que la shell interprete `(`, `*` y `?`.
 
 #### Aplicar Cambios con `restorecon`
 
