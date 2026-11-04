@@ -32,7 +32,7 @@ La **sección 5** del manual cubre los **formatos de archivos** y **convenciones
 
 La **sección 8** contiene los **comandos de administración del sistema**, que generalmente solo pueden ser ejecutados por el **superusuario (root)** o usuarios con privilegios especiales. Esta sección está destinada a tareas de administración, como manejo de servicios, gestión de usuarios, redes, etc.
 
-- **Contenido**: Se incluyen herramientas administrativas como `systemctl`, `fdisk`, `mount`, etc.
+- **Contenido**: Se incluyen herramientas administrativas como `fdisk`, `mount`, `useradd`, etc. (`systemctl` está en la sección 1, aunque sea de administración).
 - **Ejemplo**:
 
   ```bash
@@ -47,4 +47,4 @@ Supongamos que quieres ver las diferentes páginas del manual para el comando `p
 
 - **`man 1 passwd`**: Verá el comando `passwd` que cambia la contraseña del usuario.
 - **`man 5 passwd`**: Verá la descripción del archivo `/etc/passwd`, que almacena información sobre los usuarios.
-- **`man 8 passwd`**: Comando de administración relacionado con la gestión de contraseñas.
+- `man 8 passwd` no existe en RHEL: si no sabes en qué sección está algo, `man -k passwd` (o `whatis passwd`) lista las páginas y sus secciones.

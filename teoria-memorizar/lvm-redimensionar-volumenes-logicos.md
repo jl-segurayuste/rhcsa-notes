@@ -24,7 +24,7 @@ Explicación de cada comando y comparativa de los cuatro:
 4. **`lvresize -r -l 75%FREE /dev/vgdata/lvdata`**:
    - Ajusta el tamaño del volumen lógico `lvdata` para que ocupe **el 75% del espacio libre disponible (FREE)** dentro del grupo de volúmenes `vgdata`.
    - No es incremental, simplemente establece el tamaño al 75% del espacio libre en el VG.
-   - Por ejemplo, si hay 40 GB libres en el VG, el comando configurará el tamaño de `lvdata` para que sea de 30 GB, independientemente de su tamaño actual.
+   - Por ejemplo, si hay 40 GB libres en el VG, el comando configurará el tamaño de `lvdata` para que sea de 30 GB, independientemente de su tamaño actual: **si el volumen ya era mayor, lo reduce** (con XFS, que no se puede reducir, la orden falla). Lo mismo vale para `75%VG`.
 
 ### Comparativa de los cuatro comandos
 
